@@ -1,4 +1,4 @@
-package uk.gov.companieshouse;
+package uk.gov.companieshouse.service;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -26,6 +26,7 @@ class InvalidMessageRouterTest {
 
     @BeforeEach
     void setup() {
+        System.setProperty("api.version", "1.44");
         invalidMessageRouter = new InvalidMessageRouter();
         invalidMessageRouter.configure(Map.of("message.flags", flags, "invalid.message.topic", "invalid"));
     }

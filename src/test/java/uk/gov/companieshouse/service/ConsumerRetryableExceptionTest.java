@@ -1,4 +1,4 @@
-package uk.gov.companieshouse;
+package uk.gov.companieshouse.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -15,6 +15,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import uk.gov.companieshouse.service.AbstractKafkaIntegrationTest;
+import uk.gov.companieshouse.TestUtils;
 import uk.gov.companieshouse.service.Service;
 import uk.gov.companieshouse.exception.RetryableException;
 import uk.gov.companieshouse.util.ServiceParameters;
@@ -46,6 +50,7 @@ class ConsumerRetryableExceptionTest extends AbstractKafkaIntegrationTest {
 
     @BeforeEach
     public void drainKafkaTopics() {
+        System.setProperty("api.version", "1.44");
         testConsumer.poll(Duration.ofSeconds(1));
     }
 

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse;
+package uk.gov.companieshouse.service;
 
 import java.util.concurrent.CountDownLatch;
 import org.aspectj.lang.JoinPoint;
