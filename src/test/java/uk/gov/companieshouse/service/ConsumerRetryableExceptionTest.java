@@ -50,7 +50,6 @@ class ConsumerRetryableExceptionTest extends AbstractKafkaIntegrationTest {
 
     @BeforeEach
     public void drainKafkaTopics() {
-        System.setProperty("api.version", "1.44");
         testConsumer.poll(Duration.ofSeconds(1));
     }
 

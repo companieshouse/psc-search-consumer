@@ -38,7 +38,6 @@ class ConsumerInvalidTopicTest extends AbstractKafkaIntegrationTest {
 
     @BeforeEach
     void drainKafkaTopics() {
-        System.setProperty("api.version", "1.44");
         testConsumer.poll(Duration.ofSeconds(1));
     }
 
