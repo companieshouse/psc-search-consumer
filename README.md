@@ -1,13 +1,16 @@
 # psc-search-consumer
-A service that consumes messages from the stream-company-psc topic and sends data to the primary-search-api
 
-# Build requirements
+## Summary
+A service that consumes messages from the stream-company-psc topic and sends data to the primary-search-api, where a psc
+is a person with significant control.
+
+## Build requirements
 In order to build ```psc-search-consumer``` locally you will need the following:
 - Java 21
 - Maven
 - Git
 
-# Environment variables
+## Environment variables
 
 | Name                                | Description                                                                                          | Mandatory   | Example                   |
 |-------------------------------------|------------------------------------------------------------------------------------------------------|-------------|---------------------------|
@@ -30,6 +33,8 @@ In order to build ```psc-search-consumer``` locally you will need the following:
 | ```INVALID_MESSAGE_TOPIC```         | The invalid message topic id for psc-search-consumer                                                 | √           | invalid-messages          |
 | ------                              | -------------                                                                                        | ----------- | ---------                 |
 
+## Healthcheck Endpoint
+There is a healthcheck endpoint available at ```/psc-search-consumer/healthcheck```
 
 
 
