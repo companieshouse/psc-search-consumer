@@ -37,5 +37,7 @@ In order to build ```psc-search-consumer``` locally you will need the following:
 There is a healthcheck endpoint available at ```/psc-search-consumer/healthcheck```
 
 
+# psc-search-consumer 
+A service that consumes messages from the stream-company-psc topic and sends data to the primary-search-api
 
 
