@@ -7,7 +7,7 @@ import org.springframework.messaging.Message;
 import uk.gov.companieshouse.config.Config;
 import uk.gov.companieshouse.util.MessageFlags;
 
-public class ConsumerFeatureFlagsTest {
+class ConsumerFeatureFlagsTest {
 
     @Test
     void doesNotProcessMessagesWhenFlagDisabled() {
