@@ -28,6 +28,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @EnableKafka
 public class Config {
 
+    @Value("${psc.consumer.enabled:false}")
+    private boolean pscConsumerEnabled;
+    public boolean isPscConsumerEnabled() { 
+        return pscConsumerEnabled; 
+    }
+
     @Bean
     public ConcurrentHashMap<ServiceResultStatus, ResponseEntityFactory> responseEntityFactoryMap() {
         return new ConcurrentHashMap<>();

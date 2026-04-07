@@ -7,9 +7,12 @@ import org.springframework.kafka.retrytopic.SameIntervalTopicReuseStrategy;
 import org.springframework.messaging.Message;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.companieshouse.exception.RetryableException;
 import uk.gov.companieshouse.util.MessageFlags;
 import uk.gov.companieshouse.util.ServiceParameters;
+import uk.gov.companieshouse.config.Config;
 
 /**
  * Consumes messages from the configured main Kafka topic.
@@ -17,12 +20,15 @@ import uk.gov.companieshouse.util.ServiceParameters;
 @Component
 public class Consumer {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Consumer.class);
     private final Service service;
     private final MessageFlags messageFlags;
+    private final Config config;
 
-    public Consumer(Service service, MessageFlags messageFlags) {
+    public Consumer(Service service, MessageFlags messageFlags, Config config) {
         this.service = service;
         this.messageFlags = messageFlags;
+        this.config = config;
     }
 
     /**
@@ -47,6 +53,10 @@ public class Consumer {
             include = RetryableException.class
     )
     public void consume(Message<String> message) {
+        if (!config.isPscConsumerEnabled()) {
+            LOGGER.info("PSC consumer is disabled by feature flag. Message will not be processed.");
+            return;
+        }
         try {
             service.processMessage(new ServiceParameters(message.getPayload()));
         } catch (RetryableException e) {
