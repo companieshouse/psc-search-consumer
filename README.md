@@ -31,7 +31,9 @@ In order to build ```psc-search-consumer``` locally you will need the following:
 | ```BACKOFF_DELAY```                 | The delay in milliseconds between message republish attempts.                                        | √           | 1000                      |
 | ------                              | -------------                                                                                        | ----------- | ---------                 |
 | ```INVALID_MESSAGE_TOPIC```         | The invalid message topic id for psc-search-consumer                                                 | √           | invalid-messages          |
-| ------                              | -------------                                                                                        | ----------- | ---------                 |
+| ------                              | -------------                                                                                        | ----------- | ---------                     |
+| ```FEATURE_FLAG_PSC_CONSUMER_ENABLED``` | Feature flag to enable psc-search-consumer to consume messages                                   | √           | false                         |
+| ------                              | -------------                                                                                        | ----------- | ---------        
 
 ## Healthcheck Endpoint
 There is a healthcheck endpoint available at ```/psc-search-consumer/healthcheck```
