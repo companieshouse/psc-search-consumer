@@ -1,18 +1,26 @@
 package uk.gov.companieshouse.logging;
 
+import static org.springframework.kafka.retrytopic.RetryTopicHeaders.DEFAULT_HEADER_ATTEMPTS;
+
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Component;
+import uk.gov.companieshouse.exception.NonRetryableException;
+import uk.gov.companieshouse.exception.RetryableException;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 import uk.gov.companieshouse.Application;
 import uk.gov.companieshouse.service.Consumer;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -32,6 +40,11 @@ import java.util.Optional;
 @Component
 @Aspect
 public class MessageLoggingAspect {
+    private final int maxAttempts;
+
+    MessageLoggingAspect(@Value("${consumer.max-attempts}") int maxAttempts) {
+        this.maxAttempts = maxAttempts;
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.NAMESPACE);
 
@@ -55,6 +68,38 @@ public class MessageLoggingAspect {
     }
 
     private void logMessage(String logMessage, Message<?> incomingMessage) {
+        int retryCount = 0;
+        String requestId;
+        String resourceId;
+
+        try {
+            MessageHeaders headers = incomingMessage.getHeaders();
+            retryCount = Optional.ofNullable(headers.get(DEFAULT_HEADER_ATTEMPTS))
+                    .map(attempts -> ByteBuffer.wrap((byte[]) attempts).getInt())
+                    .orElse(1) - 1;
+
+        } catch (RetryableException ex) {
+            // maxAttempts includes first attempt which is not a retry
+            if (retryCount >= maxAttempts - 1) {
+                LOGGER.error("Max retry attempts reached", ex);
+            } else {
+                LOGGER.info(EXCEPTION_MESSAGE);
+            }
+            throw ex;
+        } catch (Exception ex) {
+            LOGGER.error("Exception thrown", ex);
+            throw ex;
+        }
+
+        if (incomingMessage instanceof ResourceChangedData data) {
+            resourceId = data.getResourceId();
+            requestId = data.getContextId();
+        } else {
+            String errorMessage = "Invalid payload type, payload: [%s]".formatted(incomingMessage.toString());
+            LOGGER.error(errorMessage);
+            throw new NonRetryableException(errorMessage);
+        }
+
         String topic = Optional.ofNullable((String) incomingMessage.getHeaders().get(KafkaHeaders.RECEIVED_TOPIC))
                 .orElse("no topic");
         Integer partition = Optional.ofNullable((Integer) incomingMessage.getHeaders().get(KafkaHeaders.RECEIVED_PARTITION))
@@ -64,6 +109,9 @@ public class MessageLoggingAspect {
         LOGGER.debug(logMessage, new HashMap<>(Map.of(
                 "topic", topic,
                 "partition", partition,
-                "offset", offset)));
+                "offset", offset,
+                "retryCount", retryCount,
+                "notification_id", resourceId,
+                "request_id", requestId)));
     }
 }
