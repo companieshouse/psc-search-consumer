@@ -18,12 +18,14 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import uk.gov.companieshouse.service.ResourceChangedDataSerializer;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 
 @TestConfiguration
 public class TestKafkaConfig {
 
     @Bean
-    CountDownLatch latch(@Value("${steps}") int steps) {
+    CountDownLatch latch(@Value("${steps:1}") int steps) {
         return new CountDownLatch(steps);
     }
 
@@ -50,5 +52,14 @@ public class TestKafkaConfig {
                         ProducerConfig.ACKS_CONFIG, "all",
                         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers),
                 new StringSerializer(), new StringSerializer());
+    }
+
+    @Bean
+    KafkaProducer<String, ResourceChangedData> testResourceChangedDataProducer(@Value("${spring.kafka.bootstrap-servers}") String bootstrapServers) {
+        return new KafkaProducer<>(
+                Map.of(
+                        ProducerConfig.ACKS_CONFIG, "all",
+                        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers),
+                new StringSerializer(), new ResourceChangedDataSerializer());
     }
 }
