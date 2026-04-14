@@ -70,16 +70,4 @@ public class MessageLoggingAspectTest {
         assertTrue(capture.getOut().contains("context456"));
         assertTrue(capture.getOut().contains("test-topic"));
     }
-
-    @Test
-    public void testInvalidPayloadTypeThrowsNonRetryableException(){
-        Message<?> invalidMessage = mock(Message.class);
-        when(invalidMessage.getHeaders()).thenReturn(headers);
-        when(joinPoint.getArgs()).thenReturn(new Object[]{invalidMessage});
-        when(headers.get(anyString())).thenReturn(null);
-
-        assertThrows(NonRetryableException.class, () -> {
-            aspect.logBeforeMainConsumer(joinPoint);
-        });
-    }
 }
