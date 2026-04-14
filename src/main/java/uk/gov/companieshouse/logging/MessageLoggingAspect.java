@@ -67,8 +67,8 @@ public class MessageLoggingAspect {
 
     private void logMessage(String logMessage, Message<?> incomingMessage) {
         int retryCount = 0;
-        String requestId;
-        String resourceId;
+        String requestId = "";
+        String resourceId = "";
 
         try {
             MessageHeaders headers = incomingMessage.getHeaders();
@@ -94,10 +94,6 @@ public class MessageLoggingAspect {
         if (payload instanceof ResourceChangedData data) {
             resourceId = data.getResourceId();
             requestId = data.getContextId();
-        } else {
-            String errorMessage = "Invalid payload type, payload: [%s]".formatted(incomingMessage.toString());
-            LOGGER.error(errorMessage);
-            throw new NonRetryableException(errorMessage);
         }
 
         String topic = Optional.ofNullable((String) incomingMessage.getHeaders().get(KafkaHeaders.RECEIVED_TOPIC))
