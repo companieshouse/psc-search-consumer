@@ -42,9 +42,7 @@ import java.util.Optional;
 public class MessageLoggingAspect {
     private final int maxAttempts;
 
-    MessageLoggingAspect(@Value("${consumer.max-attempts}") int maxAttempts) {
-        this.maxAttempts = maxAttempts;
-    }
+    MessageLoggingAspect(@Value("${consumer.max-attempts}") int maxAttempts) { this.maxAttempts = maxAttempts; }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.NAMESPACE);
 
@@ -91,7 +89,9 @@ public class MessageLoggingAspect {
             throw ex;
         }
 
-        if (incomingMessage instanceof ResourceChangedData data) {
+        Object payload = incomingMessage.getPayload();
+
+        if (payload instanceof ResourceChangedData data) {
             resourceId = data.getResourceId();
             requestId = data.getContextId();
         } else {
