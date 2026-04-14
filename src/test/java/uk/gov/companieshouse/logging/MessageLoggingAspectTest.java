@@ -11,21 +11,18 @@ import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
-import uk.gov.companieshouse.exception.NonRetryableException;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class MessageLoggingAspectTest {
+class MessageLoggingAspectTest {
 
     private MessageLoggingAspect aspect;
 
@@ -42,7 +39,7 @@ public class MessageLoggingAspectTest {
 
     @Test
     @ExtendWith(OutputCaptureExtension.class)
-    public void testLogBeforeMainConsumer_logsExpectedMessage(CapturedOutput capture) {
+    void testLogBeforeMainConsumer_logsExpectedMessage(CapturedOutput capture) {
         ResourceChangedData data = mock(ResourceChangedData.class);
         when(data.getResourceId()).thenReturn("resource123");
         when(data.getContextId()).thenReturn("context456");
