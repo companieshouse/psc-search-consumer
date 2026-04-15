@@ -28,13 +28,20 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class MessageLoggingAspectTest {
 
-    private MessageLoggingAspect aspect;
+    @Mock
+    MessageLoggingAspect aspect = new MessageLoggingAspect(5);
 
     @Mock
-    private MessageHeaders headers;
+    JoinPoint jp = mock(JoinPoint.class);
 
     @Mock
-    private JoinPoint joinPoint;
+    Message<ResourceChangedData> messageChanged = mock(Message.class);
+
+    @Mock
+    ResourceChangedData data = mock(ResourceChangedData.class);
+
+    @Mock
+    MessageHeaders headers = mock(MessageHeaders.class);
 
     @BeforeEach
     void setUp() {
@@ -44,7 +51,6 @@ class MessageLoggingAspectTest {
     @Test
     @ExtendWith(OutputCaptureExtension.class)
     void testLogBeforeMainConsumer_logsExpectedMessage(CapturedOutput capture) {
-        ResourceChangedData data = mock(ResourceChangedData.class);
         when(data.getResourceId()).thenReturn("resource123");
         when(data.getContextId()).thenReturn("context456");
 
@@ -55,12 +61,10 @@ class MessageLoggingAspectTest {
         headersMap.put("spring_retry_attempts", ByteBuffer.allocate(4).putInt(2).array());
 
         MessageHeaders testHeaders = new MessageHeaders(headersMap);
-        Message<ResourceChangedData> message = mock(Message.class);
-        when(message.getHeaders()).thenReturn(testHeaders);
-        when(message.getPayload()).thenReturn(data);
+        when(messageChanged.getHeaders()).thenReturn(testHeaders);
+        when(messageChanged.getPayload()).thenReturn(data);
 
-        JoinPoint jp = mock(JoinPoint.class);
-        when(jp.getArgs()).thenReturn(new Object[] { message });
+        when(jp.getArgs()).thenReturn(new Object[] { messageChanged });
 
         // when
         aspect.logBeforeMainConsumer(jp);
@@ -74,32 +78,21 @@ class MessageLoggingAspectTest {
 
     @Test
     void testLogMesssage_catchesRuntimeException(){
-        Message<?> message = mock(Message.class);
-        MessageHeaders headers = mock(MessageHeaders.class);
-
-        when(message.getHeaders()).thenReturn(headers);
+        when(messageChanged.getHeaders()).thenReturn(headers);
         when(headers.get(anyString())).thenThrow(new RuntimeException("Error"));
 
-        JoinPoint jp = mock(JoinPoint.class);
-        when(jp.getArgs()).thenReturn(new Object[] {message});
-
-        MessageLoggingAspect aspect = new MessageLoggingAspect(3);
+        when(jp.getArgs()).thenReturn(new Object[] { messageChanged });
 
         assertThrows(RuntimeException.class, () -> aspect.logBeforeMainConsumer(jp));
     }
 
     @Test
     void testLogBeforeMainConsumer_retryableException_maxAttemptsReached() {
-        Message<?> message = mock(Message.class);
-        MessageHeaders headers = mock(MessageHeaders.class);
-
-        when(message.getHeaders()).thenReturn(headers);
+        when(messageChanged.getHeaders()).thenReturn(headers);
         when(headers.get(RetryTopicHeaders.DEFAULT_HEADER_ATTEMPTS))
                 .thenThrow(new RetryableException("Retryable error"));
 
-        JoinPoint jp = mock(JoinPoint.class);
-        when(jp.getArgs()).thenReturn(new Object[] {message});
-        MessageLoggingAspect aspect = new MessageLoggingAspect(3);
+        when(jp.getArgs()).thenReturn(new Object[] { messageChanged });
 
         assertThrows(RetryableException.class, () -> aspect.logBeforeMainConsumer(jp));
     }
