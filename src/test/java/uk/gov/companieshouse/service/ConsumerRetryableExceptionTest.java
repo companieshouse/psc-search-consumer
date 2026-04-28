@@ -27,23 +27,25 @@ import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.TestUtils;
 import uk.gov.companieshouse.exception.RetryableException;
 import uk.gov.companieshouse.util.ServiceParameters;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 
 @SpringBootTest
 @ActiveProfiles("test_main_retryable")
 class ConsumerRetryableExceptionTest extends AbstractKafkaIntegrationTest {
 
     @Autowired
-    private KafkaProducer<String, String> testProducer;
+    private KafkaProducer<String, ResourceChangedData> testProducer;
     @Autowired
-    private KafkaConsumer<String, String> testConsumer;
+    private KafkaConsumer<String, ResourceChangedData> testConsumer;
 
     @Autowired
     private CountDownLatch latch;
 
-    @MockBean
+    @MockitoBean
     private Service service;
 
     @BeforeEach
@@ -58,7 +60,7 @@ class ConsumerRetryableExceptionTest extends AbstractKafkaIntegrationTest {
 
         //when
         testProducer.send(new ProducerRecord<>(MAIN_TOPIC, 0, System.currentTimeMillis(), "key",
-                "value"));
+                RESOURCE_CHANGED_DATA));
         if (!latch.await(5L, TimeUnit.SECONDS)) {
             fail("Timed out waiting for latch");
         }

@@ -42,12 +42,12 @@ public class StreamCompanyPscProducer {
     private String streamCompanyPscTopic = "stream-company-psc";
 
     @Autowired
-    private KafkaProducer<String, ResourceChangedData> testResourceChangedDataProducer;
+    private KafkaProducer<String, ResourceChangedData> testProducer;
 
     @SuppressWarnings("squid:S2699") // at least one assertion
     @Test
     void produceMessageToDocker() throws InterruptedException, ExecutionException, TimeoutException {
-        final var future = testResourceChangedDataProducer.send(new ProducerRecord<>(
+        final var future = testProducer.send(new ProducerRecord<>(
                 streamCompanyPscTopic, 0, System.currentTimeMillis(), SAME_PARTITION_KEY, RESOURCE_CHANGED_DATA));
         final var result = future.get(MESSAGE_WAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         LOGGER.info("Message " + RESOURCE_CHANGED_DATA + " delivered to topic " + streamCompanyPscTopic);
