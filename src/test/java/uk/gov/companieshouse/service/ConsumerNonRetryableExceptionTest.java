@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static uk.gov.companieshouse.Constants.RESOURCE_CHANGED_DATA;
 import static uk.gov.companieshouse.TestUtils.ERROR_TOPIC;
 import static uk.gov.companieshouse.TestUtils.INVALID_TOPIC;
 import static uk.gov.companieshouse.TestUtils.MAIN_TOPIC;
@@ -67,6 +68,6 @@ class ConsumerNonRetryableExceptionTest extends AbstractKafkaIntegrationTest {
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, RETRY_TOPIC)).isZero();
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, ERROR_TOPIC)).isZero();
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, INVALID_TOPIC)).isEqualTo(1);
-        verify(service).processMessage(new ServiceParameters("value"));
+        verify(service).processMessage(new ServiceParameters(RESOURCE_CHANGED_DATA));
     }
 }

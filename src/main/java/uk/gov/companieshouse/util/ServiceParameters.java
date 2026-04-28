@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.util;
 
 import uk.gov.companieshouse.service.Service;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 
 import java.util.Objects;
 
@@ -9,9 +10,9 @@ import java.util.Objects;
  */
 public class ServiceParameters {
 
-    private final String data;
+    private final ResourceChangedData data;
 
-    public ServiceParameters(String data) {
+    public ServiceParameters(ResourceChangedData data) {
         this.data = data;
     }
 
@@ -20,7 +21,7 @@ public class ServiceParameters {
      *
      * @return A string representing data that has been attached to the ServiceParameters object.
      */
-    public String getData() {
+    public ResourceChangedData getData() {
         return data;
     }
 

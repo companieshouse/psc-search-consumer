@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.companieshouse.exception.RetryableException;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 import uk.gov.companieshouse.util.MessageFlags;
 import uk.gov.companieshouse.util.ServiceParameters;
 import uk.gov.companieshouse.config.Config;
@@ -52,12 +53,13 @@ public class Consumer {
             sameIntervalTopicReuseStrategy = SameIntervalTopicReuseStrategy.SINGLE_TOPIC,
             include = RetryableException.class
     )
-    public void consume(Message<String> message) {
+    public void consume(Message<ResourceChangedData> message) {
         if (!config.isPscConsumerEnabled()) {
             LOGGER.info("PSC consumer is disabled by feature flag. Message will not be processed.");
             return;
         }
         try {
+            LOGGER.info("I AM GONNA PROCESS IT!");
             service.processMessage(new ServiceParameters(message.getPayload()));
         } catch (RetryableException e) {
             messageFlags.setRetryable(true);

@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static uk.gov.companieshouse.Constants.RESOURCE_CHANGED_DATA;
 import static uk.gov.companieshouse.TestUtils.ERROR_TOPIC;
 import static uk.gov.companieshouse.TestUtils.INVALID_TOPIC;
 import static uk.gov.companieshouse.TestUtils.MAIN_TOPIC;
@@ -68,6 +69,6 @@ class ConsumerRetryableExceptionTest extends AbstractKafkaIntegrationTest {
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, RETRY_TOPIC)).isEqualTo(4);
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, ERROR_TOPIC)).isEqualTo(1);
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, INVALID_TOPIC)).isZero();
-        verify(service, times(5)).processMessage(new ServiceParameters("value"));
+        verify(service, times(5)).processMessage(new ServiceParameters(RESOURCE_CHANGED_DATA));
     }
 }

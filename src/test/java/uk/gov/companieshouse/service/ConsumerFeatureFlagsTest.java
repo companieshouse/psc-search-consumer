@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.Message;
 import uk.gov.companieshouse.config.Config;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 import uk.gov.companieshouse.util.MessageFlags;
 
 class ConsumerFeatureFlagsTest {
@@ -18,8 +19,8 @@ class ConsumerFeatureFlagsTest {
 
         Consumer consumer = new Consumer(service, messageFlags, config);
 
-        Message<String> message = mock(Message.class);
-        when(message.getPayload()).thenReturn("test");
+        Message<ResourceChangedData> message = mock(Message.class);
+        when(message.getPayload()).thenReturn(new ResourceChangedData());
 
         consumer.consume(message);
 
@@ -35,8 +36,8 @@ class ConsumerFeatureFlagsTest {
 
         Consumer consumer = new Consumer(service, messageFlags, config);
 
-        Message<String> message = mock(Message.class);
-        when(message.getPayload()).thenReturn("test");
+        Message<ResourceChangedData> message = mock(Message.class);
+        when(message.getPayload()).thenReturn(new ResourceChangedData());
 
         consumer.consume(message);
 
