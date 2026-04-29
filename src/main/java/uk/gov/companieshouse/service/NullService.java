@@ -18,6 +18,7 @@ class NullService implements Service {
     @Override
     public void processMessage(ServiceParameters parameters) {
         final var message = parameters.getData();
-        LOGGER.debug("Data in processMessage:" + message);
+        LOGGER.debug("Data in processMessage: {}", message);
+        //TODO: Implement actual service class
     }
 }

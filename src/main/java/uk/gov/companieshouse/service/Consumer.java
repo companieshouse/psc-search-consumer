@@ -59,7 +59,6 @@ public class Consumer {
             return;
         }
         try {
-            LOGGER.info("I AM GONNA PROCESS IT!");
             service.processMessage(new ServiceParameters(message.getPayload()));
         } catch (RetryableException e) {
             messageFlags.setRetryable(true);
