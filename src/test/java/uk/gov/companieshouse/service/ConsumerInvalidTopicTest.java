@@ -2,6 +2,7 @@ package uk.gov.companieshouse.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
+import static uk.gov.companieshouse.Constants.RESOURCE_CHANGED_DATA;
 import static uk.gov.companieshouse.TestUtils.ERROR_TOPIC;
 import static uk.gov.companieshouse.TestUtils.INVALID_TOPIC;
 import static uk.gov.companieshouse.TestUtils.MAIN_TOPIC;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.companieshouse.TestUtils;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 
 import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
@@ -28,9 +30,9 @@ import java.util.concurrent.TimeUnit;
 class ConsumerInvalidTopicTest extends AbstractKafkaIntegrationTest {
 
     @Autowired
-    private KafkaProducer<String, String> testProducer;
+    private KafkaProducer<String, ResourceChangedData> testProducer;
     @Autowired
-    private KafkaConsumer<String, String> testConsumer;
+    private KafkaConsumer<String, ResourceChangedData> testConsumer;
     @Autowired
     private CountDownLatch latch;
 
@@ -44,7 +46,7 @@ class ConsumerInvalidTopicTest extends AbstractKafkaIntegrationTest {
 
         //when
         testProducer.send(new ProducerRecord<>(MAIN_TOPIC, 0, System.currentTimeMillis(), "key",
-                "value"));
+                RESOURCE_CHANGED_DATA));
         if (!latch.await(5L, TimeUnit.SECONDS)) {
             fail("Timed out waiting for latch");
         }

@@ -25,6 +25,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import uk.gov.companieshouse.TestUtils;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 import uk.gov.companieshouse.util.ServiceParameters;
 
 @SpringBootTest
@@ -32,9 +33,9 @@ import uk.gov.companieshouse.util.ServiceParameters;
 class ConsumerPositiveTest extends AbstractKafkaIntegrationTest {
 
     @Autowired
-    private KafkaProducer<String, String> testProducer;
+    private KafkaProducer<String, ResourceChangedData> testProducer;
     @Autowired
-    private KafkaConsumer<String, String> testConsumer;
+    private KafkaConsumer<String, ResourceChangedData> testConsumer;
     @Autowired
     private CountDownLatch latch;
 
@@ -50,7 +51,7 @@ class ConsumerPositiveTest extends AbstractKafkaIntegrationTest {
     void testConsumeFromMainTopic() throws Exception {
 
         testProducer.send(new ProducerRecord<>(MAIN_TOPIC, 0, System.currentTimeMillis(), "key",
-                "value"));
+                RESOURCE_CHANGED_DATA));
         if (!latch.await(5L, TimeUnit.SECONDS)) {
             fail("Timed out waiting for latch");
         }
