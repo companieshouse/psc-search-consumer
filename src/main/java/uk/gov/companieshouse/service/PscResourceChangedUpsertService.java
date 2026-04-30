@@ -7,8 +7,7 @@ import uk.gov.companieshouse.logging.DataMapHolder;
 import uk.gov.companieshouse.model.PscSummary;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
-//TO-DO CHANGE FROM SEARCH API TO PRIMARY SEARCH API
-//TO DO - COMPLETE PSC INDEX RECORD MAPPER - note, dont think we should map anything here actually - should take place at API
+//TO-DO Add structured logging
 
 @Component
 public class PscResourceChangedUpsertService implements ResourceChangedService {
