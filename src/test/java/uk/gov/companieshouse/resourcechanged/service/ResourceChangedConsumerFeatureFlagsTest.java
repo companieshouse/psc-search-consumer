@@ -4,7 +4,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.Message;
-import uk.gov.companieshouse.resourcechanged.service.ResourceChangedService;
 import uk.gov.companieshouse.resourcechanged.config.ResourceChangedConfig;
 import uk.gov.companieshouse.resourcechanged.ResourceChangedConsumer;
 import uk.gov.companieshouse.stream.ResourceChangedData;
