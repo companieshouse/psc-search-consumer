@@ -23,7 +23,7 @@ public class PrimarySearchApiClient {
     }
 
     public void upsertPsc(String pscId, PscSummary pscSummary) {
-        String resourceUri = "/search/psc/%s".formatted(pscId); // Adjust URI as required by your API
+        String resourceUri = "/search/psc/%s".formatted(pscId); 
         InternalApiClient apiClient = apiClientSupplier.get();
         apiClient.getHttpClient().setRequestId(DataMapHolder.getRequestId());
         try {
