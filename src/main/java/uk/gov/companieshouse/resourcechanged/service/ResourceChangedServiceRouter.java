@@ -21,7 +21,7 @@ public class ResourceChangedServiceRouter {
         ResourceChangedData payload = message.getPayload();
 
         if (EVENT_CHANGED.equals(payload.getEvent().getType())) {
-            resourceChangedUpsertService.processMessage(payload);
+            resourceChangedUpsertService.processMessage(new ResourceChangedServiceParameters(payload));
         } else {
             // Future delete event handling can be added here - for now throw exception for unsupported event types
             throw new NonRetryableException(

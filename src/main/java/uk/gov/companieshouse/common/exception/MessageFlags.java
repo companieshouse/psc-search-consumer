@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.exception;
+package uk.gov.companieshouse.common.exception;
 
 import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Component;
