@@ -30,6 +30,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.common.TestUtils;
 import uk.gov.companieshouse.common.exception.RetryableException;
 import uk.gov.companieshouse.common.itest.AbstractKafkaIntegrationTest;
+import uk.gov.companieshouse.resourcechanged.service.PscSearchUpdaterServiceRouter;
 import uk.gov.companieshouse.resourcechanged.service.ResourceChangedService;
 import uk.gov.companieshouse.resourcechanged.service.ResourceChangedServiceParameters;
 import uk.gov.companieshouse.stream.ResourceChangedData;
@@ -47,7 +48,7 @@ class ResourceChangedConsumerRetryableExceptionTest extends AbstractKafkaIntegra
     private CountDownLatch latch;
 
     @MockitoBean
-    private ResourceChangedService resourceChangedService;
+    private PscSearchUpdaterServiceRouter router;
 
     @BeforeEach
     public void drainKafkaTopics() {
@@ -57,7 +58,7 @@ class ResourceChangedConsumerRetryableExceptionTest extends AbstractKafkaIntegra
     @Test
     void testRepublishToErrorTopicThroughRetryTopics() throws InterruptedException {
         //given
-        doThrow(RetryableException.class).when(resourceChangedService).processMessage(any());
+        doThrow(RetryableException.class).when(router).route(any());
 
         //when
         testProducer.send(new ProducerRecord<>(MAIN_TOPIC, 0, System.currentTimeMillis(), "key",
@@ -72,6 +73,6 @@ class ResourceChangedConsumerRetryableExceptionTest extends AbstractKafkaIntegra
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, RETRY_TOPIC)).isEqualTo(4);
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, ERROR_TOPIC)).isEqualTo(1);
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, INVALID_TOPIC)).isZero();
-        verify(resourceChangedService, times(5)).processMessage(new ResourceChangedServiceParameters(RESOURCE_CHANGED_DATA));
+        verify(router, times(5)).route(new ResourceChangedServiceParameters(RESOURCE_CHANGED_DATA));
     }
 }
