@@ -28,9 +28,9 @@ class PrimarySearchApiClientTest {
 
     private PrimarySearchApiClient primarySearchApiClient;
     private InternalApiClient apiClient;
-    private static final String pscId = "psc-id";
-    private static final String resourceUri =
-            String.format("/persons-with-significant-control-search/persons-with-significant-control/%s", pscId);
+    private static final String PSC_ID = "psc-id";
+    private static final String RESOURCE_URI =
+            String.format("/persons-with-significant-control-search/persons-with-significant-control/%s", PSC_ID);
 
     @BeforeEach
     void setUp() {
@@ -42,13 +42,13 @@ class PrimarySearchApiClientTest {
 
     @Test
     void deletePscSuccessDelete() throws Exception {
-        when(apiClient.privateSearchResourceHandler().pscSearch().delete(resourceUri).execute()).thenReturn(null);
+        when(apiClient.privateSearchResourceHandler().pscSearch().delete(RESOURCE_URI).execute()).thenReturn(null);
         org.mockito.Mockito.clearInvocations(apiClient.privateSearchResourceHandler().pscSearch());
 
-        primarySearchApiClient.deletePsc(pscId);
+        primarySearchApiClient.deletePsc(PSC_ID);
 
         // verify delete called with expected uri
-        verify(apiClient.privateSearchResourceHandler().pscSearch()).delete(resourceUri);
+        verify(apiClient.privateSearchResourceHandler().pscSearch()).delete(RESOURCE_URI);
         verifyNoInteractions(responseHandler);
     }
 
@@ -56,20 +56,20 @@ class PrimarySearchApiClientTest {
     void deletePscApiErrorResponseCallsResponseHandler() throws Exception {
         ApiErrorResponseException apiError = mock(ApiErrorResponseException.class);
 
-        when(apiClient.privateSearchResourceHandler().pscSearch().delete(resourceUri).execute()).thenThrow(apiError);
+        when(apiClient.privateSearchResourceHandler().pscSearch().delete(RESOURCE_URI).execute()).thenThrow(apiError);
 
-        primarySearchApiClient.deletePsc(pscId);
+        primarySearchApiClient.deletePsc(PSC_ID);
 
-        verify(responseHandler).handle(DELETE_PSC_API_CALL, resourceUri, apiError);
+        verify(responseHandler).handle(DELETE_PSC_API_CALL, RESOURCE_URI, apiError);
     }
 
     @Test
     void deletePscUriValidationExceptionCallsResponseHandler() throws Exception {
         URIValidationException uriEx = mock(URIValidationException.class);
 
-        when(apiClient.privateSearchResourceHandler().pscSearch().delete(resourceUri).execute()).thenThrow(uriEx);
+        when(apiClient.privateSearchResourceHandler().pscSearch().delete(RESOURCE_URI).execute()).thenThrow(uriEx);
 
-        primarySearchApiClient.deletePsc(pscId);
+        primarySearchApiClient.deletePsc(PSC_ID);
 
         verify(responseHandler).handle(DELETE_PSC_API_CALL, uriEx);
     }
