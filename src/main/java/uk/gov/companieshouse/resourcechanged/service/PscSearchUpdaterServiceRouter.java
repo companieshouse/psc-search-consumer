@@ -1,9 +1,7 @@
 package uk.gov.companieshouse.resourcechanged.service;
 
 import org.springframework.stereotype.Service;
-import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.common.exception.NonRetryableException;
-import uk.gov.companieshouse.common.exception.RetryableException;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
