@@ -18,7 +18,9 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import uk.gov.companieshouse.service.ServiceResultStatus;
 import uk.gov.companieshouse.service.rest.response.ResponseEntityFactory;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 import uk.gov.companieshouse.util.MessageFlags;
+import uk.gov.companieshouse.serdes.KafkaPayloadDeserialiser;
 import uk.gov.companieshouse.service.InvalidMessageRouter;
 
 import java.util.Map;
@@ -78,6 +80,33 @@ public class Config {
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(ConsumerFactory<String, String> consumerFactory,
                                                                                                  @Value("${consumer.concurrency}") Integer concurrency) {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory);
+        factory.setConcurrency(concurrency);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, ResourceChangedData> resourceChangedConsumerFactory(
+            @Value("${resource-changed.kafka.bootstrap-servers}") String bootstrapServers) {
+        return new DefaultKafkaConsumerFactory<>(
+                Map.of(
+                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class,
+                        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class,
+                        ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class,
+                        ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, KafkaPayloadDeserialiser.class,
+                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
+                        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false"),
+                new StringDeserializer(),
+                new ErrorHandlingDeserializer<>(new KafkaPayloadDeserialiser<>(ResourceChangedData.class)));
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, ResourceChangedData> resourceChangedKafkaListenerContainerFactory(
+            @Value("${resource-changed.consumer.concurrency}") Integer concurrency,
+            ConsumerFactory<String, ResourceChangedData> consumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<String, ResourceChangedData> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         factory.setConcurrency(concurrency);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);

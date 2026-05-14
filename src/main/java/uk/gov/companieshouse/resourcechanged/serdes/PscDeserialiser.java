@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.service.resourcechanged;
+package uk.gov.companieshouse.resourcechanged.serdes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

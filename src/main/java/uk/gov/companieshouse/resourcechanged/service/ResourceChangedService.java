@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.service.resourcechanged;
+package uk.gov.companieshouse.resourcechanged.service;
 
 import uk.gov.companieshouse.stream.ResourceChangedData;
 

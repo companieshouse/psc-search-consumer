@@ -8,29 +8,29 @@ import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.model.PscSummary;
 import uk.gov.companieshouse.logging.DataMapHolder;
 import uk.gov.companieshouse.service.ResponseHandler;
+import uk.gov.companieshouse.api.psc.PscList;
 
 @Component
-public class PrimarySearchApiClient {
+public class PscSearchApiClient {
 
-    private static final String SEARCH_API_PUT = "Primary Search API PUT";
+    private static final String SEARCH_API_PUT = "PSC Search API PUT";
 
     private final Supplier<InternalApiClient> apiClientSupplier;
     private final ResponseHandler responseHandler;
 
-    public PrimarySearchApiClient(Supplier<InternalApiClient> apiClientSupplier, ResponseHandler responseHandler) {
+    public PscSearchApiClient(Supplier<InternalApiClient> apiClientSupplier, ResponseHandler responseHandler) {
         this.apiClientSupplier = apiClientSupplier;
         this.responseHandler = responseHandler;
     }
 
-    public void upsertPsc(String pscId, PscSummary pscSummary) {
-        String resourceUri = "/search/psc/%s".formatted(pscId); 
+    public void upsertPsc(String pscId, PscList pscList) {
+        String resourceUri = "/persons-with-significant-control-search/persons-with-significant-control/%s".formatted(pscId); 
         InternalApiClient apiClient = apiClientSupplier.get();
         apiClient.getHttpClient().setRequestId(DataMapHolder.getRequestId());
         try {
-            // TO-DO - Replace actual resource handler
-            apiClient.primarySearchResourceHandler()
+            apiClient.privateSearchResourceHandler()
                     .pscSearch()
-                    .put(resourceUri, pscSummary)
+                    .put(resourceUri, pscList)
                     .execute();
         } catch (ApiErrorResponseException ex) {
             responseHandler.handle(SEARCH_API_PUT, resourceUri, ex);
