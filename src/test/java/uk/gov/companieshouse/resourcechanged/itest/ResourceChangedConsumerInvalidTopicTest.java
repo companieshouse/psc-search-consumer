@@ -1,12 +1,12 @@
-package uk.gov.companieshouse.service;
+package uk.gov.companieshouse.resourcechanged.itest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.verify;
-import static uk.gov.companieshouse.TestUtils.ERROR_TOPIC;
-import static uk.gov.companieshouse.TestUtils.INVALID_TOPIC;
-import static uk.gov.companieshouse.TestUtils.MAIN_TOPIC;
-import static uk.gov.companieshouse.TestUtils.RETRY_TOPIC;
+import static uk.gov.companieshouse.common.TestUtils.RESOURCE_CHANGED_DATA;
+import static uk.gov.companieshouse.common.TestUtils.ERROR_TOPIC;
+import static uk.gov.companieshouse.common.TestUtils.INVALID_TOPIC;
+import static uk.gov.companieshouse.common.TestUtils.MAIN_TOPIC;
+import static uk.gov.companieshouse.common.TestUtils.RETRY_TOPIC;
 
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -16,51 +16,47 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.context.ActiveProfiles;
+import uk.gov.companieshouse.common.TestUtils;
+import uk.gov.companieshouse.common.itest.AbstractKafkaIntegrationTest;
+import uk.gov.companieshouse.stream.ResourceChangedData;
+
 import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import uk.gov.companieshouse.TestUtils;
-import uk.gov.companieshouse.util.ServiceParameters;
-
-@SpringBootTest
-@ActiveProfiles("test_main_positive")
-class ConsumerPositiveTest extends AbstractKafkaIntegrationTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test_main_nonretryable")
+class ResourceChangedConsumerInvalidTopicTest extends AbstractKafkaIntegrationTest {
 
     @Autowired
-    private KafkaProducer<String, String> testProducer;
+    private KafkaProducer<String, ResourceChangedData> testProducer;
     @Autowired
-    private KafkaConsumer<String, String> testConsumer;
+    private KafkaConsumer<String, ResourceChangedData> testConsumer;
     @Autowired
     private CountDownLatch latch;
 
-    @MockBean
-    private Service service;
-
     @BeforeEach
-    public void setup() {
+    void drainKafkaTopics() {
         testConsumer.poll(Duration.ofSeconds(1));
     }
 
     @Test
-    void testConsumeFromMainTopic() throws Exception {
+    void testPublishToInvalidMessageTopicIfInvalidDataDeserialised() throws InterruptedException {
 
+        //when
         testProducer.send(new ProducerRecord<>(MAIN_TOPIC, 0, System.currentTimeMillis(), "key",
-                "value"));
+                RESOURCE_CHANGED_DATA));
         if (!latch.await(5L, TimeUnit.SECONDS)) {
             fail("Timed out waiting for latch");
         }
-        ConsumerRecords<?, ?> consumerRecords = KafkaTestUtils.getRecords(testConsumer, Duration.ofSeconds(10), 1);
+        ConsumerRecords<?, ?> consumerRecords = KafkaTestUtils.getRecords(testConsumer, Duration.ofSeconds(10), 2);
 
         //then
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, MAIN_TOPIC)).isEqualTo(1);
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, RETRY_TOPIC)).isZero();
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, ERROR_TOPIC)).isZero();
-        assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, INVALID_TOPIC)).isZero();
-        verify(service).processMessage(new ServiceParameters("value"));
+        assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, INVALID_TOPIC)).isEqualTo(1);
     }
 }
-

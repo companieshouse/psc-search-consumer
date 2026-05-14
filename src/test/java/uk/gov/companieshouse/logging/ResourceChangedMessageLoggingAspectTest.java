@@ -12,7 +12,8 @@ import org.springframework.kafka.retrytopic.RetryTopicHeaders;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
-import uk.gov.companieshouse.exception.RetryableException;
+import uk.gov.companieshouse.common.exception.RetryableException;
+import uk.gov.companieshouse.resourcechanged.logging.ResourceChangedMessageLoggingAspect;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
 import java.nio.ByteBuffer;
@@ -26,10 +27,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class MessageLoggingAspectTest {
+class ResourceChangedMessageLoggingAspectTest {
 
     @Mock
-    MessageLoggingAspect aspect = new MessageLoggingAspect(5);
+    ResourceChangedMessageLoggingAspect aspect = new ResourceChangedMessageLoggingAspect(5);
 
     @Mock
     JoinPoint jp = mock(JoinPoint.class);
@@ -45,7 +46,7 @@ class MessageLoggingAspectTest {
 
     @BeforeEach
     void setUp() {
-        aspect = new MessageLoggingAspect(5);
+        aspect = new ResourceChangedMessageLoggingAspect(5);
     }
 
     @Test

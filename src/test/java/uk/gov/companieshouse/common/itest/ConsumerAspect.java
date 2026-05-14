@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.service;
+package uk.gov.companieshouse.common.itest;
 
 import java.util.concurrent.CountDownLatch;
 import org.aspectj.lang.JoinPoint;
@@ -16,7 +16,7 @@ public class ConsumerAspect {
         this.latch = latch;
     }
 
-    @After("execution(* uk.gov.companieshouse.service.Consumer.consume(..))")
+    @After("execution(* uk.gov.companieshouse.resourcechanged.ResourceChangedConsumer.consume(..))")
     void afterConsume(JoinPoint joinPoint) {
         latch.countDown();
     }

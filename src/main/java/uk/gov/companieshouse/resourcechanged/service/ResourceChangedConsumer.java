@@ -3,9 +3,8 @@ package uk.gov.companieshouse.resourcechanged.service;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.exception.MessageFlags;
-import uk.gov.companieshouse.exception.RetryableException;
-import uk.gov.companieshouse.resourcechanged.service.ResourceChangedServiceRouter;
+import uk.gov.companieshouse.common.exception.MessageFlags;
+import uk.gov.companieshouse.common.exception.RetryableException;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
 /**

@@ -2,7 +2,7 @@ package uk.gov.companieshouse.resourcechanged.service;
 
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
-import uk.gov.companieshouse.exception.NonRetryableException;
+import uk.gov.companieshouse.common.exception.NonRetryableException;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
 @Service

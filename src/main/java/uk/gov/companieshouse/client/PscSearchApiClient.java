@@ -6,8 +6,8 @@ import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.model.PscSummary;
-import uk.gov.companieshouse.logging.DataMapHolder;
-import uk.gov.companieshouse.service.ResponseHandler;
+import uk.gov.companieshouse.common.logging.DataMapHolder;
+import uk.gov.companieshouse.client.ResponseHandler;
 import uk.gov.companieshouse.api.psc.PscList;
 
 @Component

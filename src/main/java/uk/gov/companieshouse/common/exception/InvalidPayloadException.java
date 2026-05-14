@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.exception;
+package uk.gov.companieshouse.common.exception;
 
 public class InvalidPayloadException extends RuntimeException {
 

@@ -1,9 +1,14 @@
 package uk.gov.companieshouse.resourcechanged.service;
 
-import uk.gov.companieshouse.stream.ResourceChangedData;
-
+/**
+ * Processes an incoming message.
+ */
 public interface ResourceChangedService {
 
-    void processMessage(ResourceChangedData changedData);
-    
+    /**
+     * Processes an incoming message.
+     *
+     * @param parameters Any parameters required when processing the message.
+     */
+    void processMessage(ResourceChangedServiceParameters parameters);
 }

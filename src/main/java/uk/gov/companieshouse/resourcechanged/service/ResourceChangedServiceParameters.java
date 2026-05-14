@@ -1,17 +1,17 @@
-package uk.gov.companieshouse.util;
+package uk.gov.companieshouse.resourcechanged.service;
 
-import uk.gov.companieshouse.service.Service;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 
 import java.util.Objects;
 
 /**
- * Contains all parameters required by {@link Service service implementations}.
+ * Contains all parameters required by {@link ResourceChangedService service implementations}.
  */
-public class ServiceParameters {
+public class ResourceChangedServiceParameters {
 
-    private final String data;
+    private final ResourceChangedData data;
 
-    public ServiceParameters(String data) {
+    public ResourceChangedServiceParameters(ResourceChangedData data) {
         this.data = data;
     }
 
@@ -20,7 +20,7 @@ public class ServiceParameters {
      *
      * @return A string representing data that has been attached to the ServiceParameters object.
      */
-    public String getData() {
+    public ResourceChangedData getData() {
         return data;
     }
 
@@ -29,10 +29,10 @@ public class ServiceParameters {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ServiceParameters)) {
+        if (!(o instanceof ResourceChangedServiceParameters)) {
             return false;
         }
-        ServiceParameters that = (ServiceParameters) o;
+        ResourceChangedServiceParameters that = (ResourceChangedServiceParameters) o;
         return Objects.equals(getData(), that.getData());
     }
 

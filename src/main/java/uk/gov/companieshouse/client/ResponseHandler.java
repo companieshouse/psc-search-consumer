@@ -7,9 +7,9 @@ import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-import uk.gov.companieshouse.logging.DataMapHolder;
-import uk.gov.companieshouse.exception.NonRetryableException;
-import uk.gov.companieshouse.exception.RetryableException;
+import uk.gov.companieshouse.common.logging.DataMapHolder;
+import uk.gov.companieshouse.common.exception.NonRetryableException;
+import uk.gov.companieshouse.common.exception.RetryableException;
 import uk.gov.companieshouse.Application;
 
 @Component

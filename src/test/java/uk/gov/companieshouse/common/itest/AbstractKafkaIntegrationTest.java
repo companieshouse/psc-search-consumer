@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.service;
+package uk.gov.companieshouse.common.itest;
 
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -7,7 +7,6 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-import uk.gov.companieshouse.TestKafkaConfig;
 
 @Testcontainers
 @Import(TestKafkaConfig.class)
@@ -15,7 +14,7 @@ public abstract class AbstractKafkaIntegrationTest {
 
     @Container
     protected static final KafkaContainer kafka = new KafkaContainer(DockerImageName.parse(
-            "confluentinc/cp-kafka:5.0.0"));
+            "confluentinc/cp-kafka:latest")).withKraft();
 
     @DynamicPropertySource
     static void props(DynamicPropertyRegistry registry) {

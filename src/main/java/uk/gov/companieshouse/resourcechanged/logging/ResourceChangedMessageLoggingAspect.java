@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.logging;
+package uk.gov.companieshouse.resourcechanged.logging;
 
 import static org.springframework.kafka.retrytopic.RetryTopicHeaders.DEFAULT_HEADER_ATTEMPTS;
 
@@ -12,11 +12,11 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.exception.RetryableException;
+import uk.gov.companieshouse.common.exception.RetryableException;
+import uk.gov.companieshouse.Application;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-import uk.gov.companieshouse.Application;
-import uk.gov.companieshouse.service.Consumer;
+import uk.gov.companieshouse.resourcechanged.ResourceChangedConsumer;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
 import java.nio.ByteBuffer;
@@ -26,7 +26,7 @@ import java.util.Optional;
 
 /**
  * Logs message details before and after it has been processed by
- * the {@link Consumer main consumer}.<br>
+ * the {@link ResourceChangedConsumer main consumer}.<br>
  * <br>
  * Details that will be logged will include:
  * <ul>
@@ -38,10 +38,10 @@ import java.util.Optional;
  */
 @Component
 @Aspect
-public class MessageLoggingAspect {
+public class ResourceChangedMessageLoggingAspect {
     private final int maxAttempts;
 
-    MessageLoggingAspect(@Value("${consumer.max-attempts}") int maxAttempts) { this.maxAttempts = maxAttempts; }
+    public ResourceChangedMessageLoggingAspect(@Value("${consumer.max-attempts}") int maxAttempts) { this.maxAttempts = maxAttempts; }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.NAMESPACE);
 
@@ -49,17 +49,17 @@ public class MessageLoggingAspect {
     private static final String LOG_MESSAGE_PROCESSED = "Processed delta";
     private static final String EXCEPTION_MESSAGE = "%s exception thrown: %s";
 
-    @Before("execution(* uk.gov.companieshouse.service.Consumer.consume(..))")
-    void logBeforeMainConsumer(JoinPoint joinPoint) {
+    @Before("execution(* uk.gov.companieshouse.resourcechanged.Consumer.consume(..))")
+    public void logBeforeMainConsumer(JoinPoint joinPoint) {
         logMessage(LOG_MESSAGE_RECEIVED, (Message<?>)joinPoint.getArgs()[0]);
     }
 
-    @After("execution(* uk.gov.companieshouse.service.Consumer.consume(..))")
+    @After("execution(* uk.gov.companieshouse.resourcechanged.Consumer.consume(..))")
     void logAfterMainConsumer(JoinPoint joinPoint) {
         logMessage(LOG_MESSAGE_PROCESSED, (Message<?>)joinPoint.getArgs()[0]);
     }
 
-    @AfterThrowing(pointcut = "execution(* uk.gov.companieshouse.service.Consumer.consume(..))", throwing = "error")
+    @AfterThrowing(pointcut = "execution(* uk.gov.companieshouse.resourcechanged.Consumer.consume(..))", throwing = "error")
     public void afterThrowingAdvice(JoinPoint joinPoint, Throwable error) {
         logMessage(String.format(EXCEPTION_MESSAGE, error.getClass().getSimpleName(), error.getMessage()), (Message<?>) joinPoint.getArgs()[0]);
     }

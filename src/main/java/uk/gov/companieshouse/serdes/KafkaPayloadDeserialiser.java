@@ -10,7 +10,7 @@ import org.apache.avro.reflect.ReflectDatumReader;
 import org.apache.kafka.common.serialization.Deserializer;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-import uk.gov.companieshouse.exception.InvalidPayloadException;
+import uk.gov.companieshouse.common.exception.InvalidPayloadException;
 
 public class KafkaPayloadDeserialiser<T> implements Deserializer<T> {
 

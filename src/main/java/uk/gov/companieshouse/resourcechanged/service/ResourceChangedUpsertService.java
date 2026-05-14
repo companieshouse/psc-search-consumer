@@ -3,7 +3,7 @@ package uk.gov.companieshouse.resourcechanged.service;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.companieshouse.logging.DataMapHolder;
+import uk.gov.companieshouse.resourcechanged.logging.DataMapHolder;
 import uk.gov.companieshouse.model.PscSummary;
 import uk.gov.companieshouse.resourcechanged.serdes.PscDeserialiser;
 import uk.gov.companieshouse.stream.ResourceChangedData;
@@ -24,12 +24,12 @@ public class ResourceChangedUpsertService implements ResourceChangedService {
     }
 
     @Override
-    public void processMessage(ResourceChangedData payload) {
+    public void processMessage(ResourceChangedServiceParameters parameters) {
 
-        PscSummary pscSummary = deserialiser.deserialisePscData(payload.getData());
-       
+        ResourceChangedData payload = parameters.getData();
+        PscSummary pscSummary = deserialiser.deserialisePscData(payload.getData());     
         String pscId = idExtractor.extractPscId(payload);
-        // TO-DO Add pscId to structured logging 
+
         DataMapHolder.get().requestId(pscId);
         // Upsert PSC data to PSC search API 
         pscSearchApiClient.upsertPsc(pscId, pscSummary);
