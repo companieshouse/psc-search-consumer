@@ -27,7 +27,7 @@ public final class TestUtils {
                     .setResourceId("ZJmpdoPuMzX35ogDAr98dHmOdaQ")
                     .setData(IOUtils.resourceToString("/json/resource-changed-data.json",
                             StandardCharsets.UTF_8))
-                    .setEvent(getEvent("changed"))
+                    .setEvent(getEvent("deleted"))
                     .setContextId("22-usZuMZEnZY6W_Kip1539964678")
                     .build();
         } catch (IOException e) {

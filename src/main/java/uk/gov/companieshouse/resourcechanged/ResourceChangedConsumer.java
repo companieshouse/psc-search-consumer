@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.companieshouse.common.exception.RetryableException;
-import uk.gov.companieshouse.resourcechanged.service.ResourceChangedService;
+import uk.gov.companieshouse.resourcechanged.service.PscSearchUpdaterServiceRouter;
 import uk.gov.companieshouse.resourcechanged.service.ResourceChangedServiceParameters;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 import uk.gov.companieshouse.common.exception.MessageFlags;
@@ -23,12 +23,12 @@ import uk.gov.companieshouse.resourcechanged.config.ResourceChangedConfig;
 public class ResourceChangedConsumer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceChangedConsumer.class);
-    private final ResourceChangedService resourceChangedService;
+    private final PscSearchUpdaterServiceRouter router;
     private final MessageFlags messageFlags;
     private final ResourceChangedConfig resourceChangedConfig;
 
-    public ResourceChangedConsumer(ResourceChangedService resourceChangedService, MessageFlags messageFlags, ResourceChangedConfig resourceChangedConfig) {
-        this.resourceChangedService = resourceChangedService;
+    public ResourceChangedConsumer(PscSearchUpdaterServiceRouter router, MessageFlags messageFlags, ResourceChangedConfig resourceChangedConfig) {
+        this.router = router;
         this.messageFlags = messageFlags;
         this.resourceChangedConfig = resourceChangedConfig;
     }
@@ -60,7 +60,7 @@ public class ResourceChangedConsumer {
             return;
         }
         try {
-            resourceChangedService.processMessage(new ResourceChangedServiceParameters(message.getPayload()));
+            router.route(new ResourceChangedServiceParameters(message.getPayload()));
         } catch (RetryableException e) {
             messageFlags.setRetryable(true);
             throw e;
