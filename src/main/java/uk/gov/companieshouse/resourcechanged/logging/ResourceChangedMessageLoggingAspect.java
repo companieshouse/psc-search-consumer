@@ -16,7 +16,7 @@ import uk.gov.companieshouse.common.exception.RetryableException;
 import uk.gov.companieshouse.Application;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-import uk.gov.companieshouse.resourcechanged.ResourceChangedConsumer;
+import uk.gov.companieshouse.resourcechanged.service.ResourceChangedConsumer;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
 import java.nio.ByteBuffer;
