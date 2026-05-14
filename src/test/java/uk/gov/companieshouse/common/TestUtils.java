@@ -17,6 +17,9 @@ public final class TestUtils {
     public static final String RETRY_TOPIC = "echo-echo-consumer-retry";
     public static final String ERROR_TOPIC = "echo-echo-consumer-error";
     public static final String INVALID_TOPIC = "echo-echo-consumer-invalid";
+
+    public static final String DELETE_PSC_API_CALL = "PSC Search API DELETE";
+    public static final String PSC_SEARCH_LINK = "/persons-with-significant-control-search/persons-with-significant-control/123";
     public static final ResourceChangedData RESOURCE_CHANGED_DATA;
 
     static {
