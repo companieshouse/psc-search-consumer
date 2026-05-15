@@ -3,24 +3,24 @@ package uk.gov.companieshouse.resourcechanged.service;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.companieshouse.resourcechanged.logging.DataMapHolder;
+import uk.gov.companieshouse.common.logging.DataMapHolder;
 import uk.gov.companieshouse.api.psc.ListSummary;
 import uk.gov.companieshouse.api.psc.PscList;
 import uk.gov.companieshouse.resourcechanged.serdes.PscDeserialiser;
 import uk.gov.companieshouse.stream.ResourceChangedData;
-import uk.gov.companieshouse.client.PscSearchApiClient;
+import uk.gov.companieshouse.common.client.PrimarySearchApiClient;
 
 @Component
 public class ResourceChangedUpsertService implements ResourceChangedService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceChangedUpsertService.class);
     private final PscDeserialiser deserialiser;
-    private final PscSearchApiClient pscSearchApiClient;
+    private final PrimarySearchApiClient primarySearchApiClient;
     private final IdExtractor idExtractor;
 
-    public ResourceChangedUpsertService(PscDeserialiser deserialiser, PscSearchApiClient pscSearchApiClient, IdExtractor idExtractor) {
+    public ResourceChangedUpsertService(PscDeserialiser deserialiser, PrimarySearchApiClient primarySearchApiClient, IdExtractor idExtractor) {
         this.deserialiser = deserialiser;
-        this.pscSearchApiClient = pscSearchApiClient;
+        this.primarySearchApiClient = primarySearchApiClient;
         this.idExtractor = idExtractor;
     }
 
@@ -43,7 +43,7 @@ public class ResourceChangedUpsertService implements ResourceChangedService {
 
         DataMapHolder.get().requestId(pscId);
         // Upsert PSC data to PSC search API 
-        pscSearchApiClient.upsertPsc(pscId, pscList);
+        primarySearchApiClient.upsertPsc(pscId, pscList);
         LOGGER.info("PSC index record upserted", DataMapHolder.getLogMap());
     }
     
