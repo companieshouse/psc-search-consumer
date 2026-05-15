@@ -24,8 +24,8 @@ public class PscDeserialiser {
         try {
             return objectMapper.readValue(data, ListSummary.class);
         } catch (JsonProcessingException e) {
-            LOGGER.error("Failed to parse PSC message payload", e);
-            throw new PscDeserialisationException("Failed to parse PSC message payload for data: " + data, e);
+            LOGGER.error("Failed to parse PSC message payload: " + data, e);
+            throw new PscDeserialisationException("PSC Deserialisation failed for data: " + data, e);
         }
     }
     
