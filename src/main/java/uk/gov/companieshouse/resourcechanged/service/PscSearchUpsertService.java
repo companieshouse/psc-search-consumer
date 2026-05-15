@@ -11,14 +11,14 @@ import uk.gov.companieshouse.stream.ResourceChangedData;
 import uk.gov.companieshouse.common.client.PrimarySearchApiClient;
 
 @Component
-public class ResourceChangedUpsertService implements ResourceChangedService {
+public class PscSearchUpsertService implements ResourceChangedService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceChangedUpsertService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PscSearchUpsertService.class);
     private final PscDeserialiser deserialiser;
     private final PrimarySearchApiClient primarySearchApiClient;
     private final IdExtractor idExtractor;
 
-    public ResourceChangedUpsertService(PscDeserialiser deserialiser, PrimarySearchApiClient primarySearchApiClient, IdExtractor idExtractor) {
+    public PscSearchUpsertService(PscDeserialiser deserialiser, PrimarySearchApiClient primarySearchApiClient, IdExtractor idExtractor) {
         this.deserialiser = deserialiser;
         this.primarySearchApiClient = primarySearchApiClient;
         this.idExtractor = idExtractor;

@@ -22,7 +22,7 @@ class PscSearchUpdaterServiceRouterTest {
     private PscSearchDeleteService deleteService;
 
     @Mock
-    private ResourceChangedUpsertService upsertService;
+    private PscSearchUpsertService upsertService;
 
     @Test
     void routeUnknownMessageTypeThrowsNonRetryable() {

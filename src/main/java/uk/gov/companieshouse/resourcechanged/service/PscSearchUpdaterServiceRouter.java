@@ -13,11 +13,11 @@ public class PscSearchUpdaterServiceRouter {
     private static final Logger LOGGER = LoggerFactory.getLogger(NAMESPACE);
 
     private final PscSearchDeleteService pscSearchDeleteService;
-    private final ResourceChangedUpsertService resourceChangedUpsertService;
+    private final PscSearchUpsertService pscSearchUpsertService;
 
-    public PscSearchUpdaterServiceRouter(PscSearchDeleteService pscSearchDeleteService, ResourceChangedUpsertService resourceChangedUpsertService) {
+    public PscSearchUpdaterServiceRouter(PscSearchDeleteService pscSearchDeleteService, PscSearchUpsertService pscSearchUpsertService) {
         this.pscSearchDeleteService = pscSearchDeleteService;
-        this.resourceChangedUpsertService = resourceChangedUpsertService;
+        this.pscSearchUpsertService = pscSearchUpsertService;
     }
 
     public void route(ResourceChangedServiceParameters parameters) {
@@ -34,7 +34,7 @@ public class PscSearchUpdaterServiceRouter {
         switch (messageType) {
             case "changed":
                 LOGGER.debug("This is a 'changed' type message.");
-                resourceChangedUpsertService.processMessage(parameters);
+                pscSearchUpsertService.processMessage(parameters);
                 break;
             case "deleted":
                 LOGGER.debug("This is a 'deleted' type message.");

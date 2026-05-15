@@ -11,7 +11,7 @@ import uk.gov.companieshouse.common.logging.DataMapHolder;
 public class PrimarySearchApiClient {
 
     private static final String DELETE_PSC_API_CALL = "PSC Search API DELETE";
-    private static final String SEARCH_API_PUT = "PSC Search API PUT";
+    private static final String UPSERT_PSC_API_CALL = "PSC Search API PUT";
 
     private final ApiClientService apiClientService;
     private final ResponseHandler responseHandler;
