@@ -67,5 +67,28 @@ class PscSearchUpdaterServiceRouterTest {
 
         verify(deleteService).processMessage(params);
     }
+
+    @Test
+    void routeChangedMessageCallsUpsertService() {
+        PscSearchUpdaterServiceRouter router = new PscSearchUpdaterServiceRouter(deleteService, upsertService);
+
+        ResourceChangedData data = mock(ResourceChangedData.class);
+        when(data.getResourceId()).thenReturn("resource-456");
+        when(data.getResourceKind()).thenReturn("company-psc-individual");
+        when(data.getResourceUri()).thenReturn("/company/456/persons-with-significant-control/def");
+
+        when(data.getEvent()).thenReturn(EventRecord.newBuilder()
+                .setPublishedAt("1453896193333")
+                .setType("changed")
+                .setFieldsChanged(Collections.emptyList())
+                .build());
+
+        ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(data);
+
+        router.route(params);
+
+        verify(upsertService).processMessage(params);
+        verify(deleteService, never()).processMessage(params);
+    }
 }
 

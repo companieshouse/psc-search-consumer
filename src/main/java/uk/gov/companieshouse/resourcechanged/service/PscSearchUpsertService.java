@@ -42,9 +42,8 @@ public class PscSearchUpsertService implements ResourceChangedService {
         pscList.setLinks(listSummary.getLinks());
 
         DataMapHolder.get().requestId(pscId);
-        // Upsert PSC data to PSC search API 
         primarySearchApiClient.upsertPsc(pscId, pscList);
-        LOGGER.info("PSC index record upserted", DataMapHolder.getLogMap());
+        LOGGER.info("PSC index record upserted: {}", DataMapHolder.getLogMap());
     }
     
     
