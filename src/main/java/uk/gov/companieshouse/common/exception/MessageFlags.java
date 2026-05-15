@@ -37,7 +37,4 @@ public class MessageFlags {
     public void destroy() {
         retryableFlagContainer.remove();
     }
-
-
-    
 }

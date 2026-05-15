@@ -47,9 +47,9 @@ public class PrimarySearchApiClient {
                     .put(resourceUri, pscList)
                     .execute();
         } catch (ApiErrorResponseException ex) {
-            responseHandler.handle(SEARCH_API_PUT, resourceUri, ex);
+            responseHandler.handle(UPSERT_PSC_API_CALL, resourceUri, ex);
         } catch (URIValidationException ex) {
-            responseHandler.handle(SEARCH_API_PUT, ex);
+            responseHandler.handle(UPSERT_PSC_API_CALL, ex);
         }
     }
 
