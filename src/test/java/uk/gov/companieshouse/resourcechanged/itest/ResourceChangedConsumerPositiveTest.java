@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.common.TestUtils;
 import uk.gov.companieshouse.common.itest.AbstractKafkaIntegrationTest;
+import uk.gov.companieshouse.resourcechanged.service.PscSearchUpdaterServiceRouter;
 import uk.gov.companieshouse.resourcechanged.service.ResourceChangedService;
 import uk.gov.companieshouse.resourcechanged.service.ResourceChangedServiceParameters;
 import uk.gov.companieshouse.stream.ResourceChangedData;
@@ -42,7 +43,7 @@ class ResourceChangedConsumerPositiveTest extends AbstractKafkaIntegrationTest {
     private CountDownLatch latch;
 
     @MockitoBean
-    private ResourceChangedService resourceChangedService;
+    private PscSearchUpdaterServiceRouter router;
 
     @BeforeEach
     public void setup() {
@@ -64,7 +65,7 @@ class ResourceChangedConsumerPositiveTest extends AbstractKafkaIntegrationTest {
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, RETRY_TOPIC)).isZero();
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, ERROR_TOPIC)).isZero();
         assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, INVALID_TOPIC)).isZero();
-        verify(resourceChangedService).processMessage(new ResourceChangedServiceParameters(RESOURCE_CHANGED_DATA));
+        verify(router).route(new ResourceChangedServiceParameters(RESOURCE_CHANGED_DATA));
     }
 }
 

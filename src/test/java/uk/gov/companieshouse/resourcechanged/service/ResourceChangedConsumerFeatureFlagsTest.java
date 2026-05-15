@@ -13,36 +13,36 @@ class ResourceChangedConsumerFeatureFlagsTest {
 
     @Test
     void doesNotProcessMessagesWhenFlagDisabled() {
-        ResourceChangedService resourceChangedService = mock(ResourceChangedService.class);
+        PscSearchUpdaterServiceRouter pscSearchUpdaterServiceRouter = mock(PscSearchUpdaterServiceRouter.class);
         MessageFlags messageFlags = mock(MessageFlags.class);
         ResourceChangedConfig resourceChangedConfig = mock(ResourceChangedConfig.class);
         when(resourceChangedConfig.isPscConsumerEnabled()).thenReturn(false);
 
-        ResourceChangedConsumer resourceChangedConsumer = new ResourceChangedConsumer(resourceChangedService, messageFlags, resourceChangedConfig);
+        ResourceChangedConsumer resourceChangedConsumer = new ResourceChangedConsumer(pscSearchUpdaterServiceRouter, messageFlags, resourceChangedConfig);
 
         Message<ResourceChangedData> message = mock(Message.class);
         when(message.getPayload()).thenReturn(new ResourceChangedData());
 
         resourceChangedConsumer.consume(message);
 
-        verify(resourceChangedService, never()).processMessage(any());
+        verify(pscSearchUpdaterServiceRouter, never()).route(any());
     }
 
     @Test
     void processesMessagesWhenFlagEnabled() {
-        ResourceChangedService resourceChangedService = mock(ResourceChangedService.class);
+        PscSearchUpdaterServiceRouter pscSearchUpdaterServiceRouter = mock(PscSearchUpdaterServiceRouter.class);
         MessageFlags messageFlags = mock(MessageFlags.class);
         ResourceChangedConfig resourceChangedConfig = mock(ResourceChangedConfig.class);
         when(resourceChangedConfig.isPscConsumerEnabled()).thenReturn(true);
 
-        ResourceChangedConsumer resourceChangedConsumer = new ResourceChangedConsumer(resourceChangedService, messageFlags, resourceChangedConfig);
+        ResourceChangedConsumer resourceChangedConsumer = new ResourceChangedConsumer(pscSearchUpdaterServiceRouter, messageFlags, resourceChangedConfig);
 
         Message<ResourceChangedData> message = mock(Message.class);
         when(message.getPayload()).thenReturn(new ResourceChangedData());
 
         resourceChangedConsumer.consume(message);
 
-        verify(resourceChangedService, times(1)).processMessage(any());
+        verify(pscSearchUpdaterServiceRouter, times(1)).route(any());
     }
     
 }
