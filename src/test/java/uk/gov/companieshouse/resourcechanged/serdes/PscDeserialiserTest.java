@@ -38,6 +38,6 @@ class PscDeserialiserTest {
 
         PscDeserialisationException ex = assertThrows(PscDeserialisationException.class, () ->
                 deserialiser.deserialiseListSummary(json));
-        assertTrue(ex.getMessage().contains("Failed to parse PSC message payload for data: " + json));
+        assertTrue(ex.getMessage().contains("PSC Deserialisation failed for data: " + json));
     }
 }

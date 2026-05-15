@@ -40,17 +40,14 @@ class PscSearchUpsertServiceTest {
     @InjectMocks
     private PscSearchUpsertService upsertService;
 
-    @BeforeEach
-    void setup() {
+    @Test
+    void shouldProcessMessage() {
         when(resourceChangedData.getData()).thenReturn(DATA);
         when(deserialiser.deserialiseListSummary(anyString())).thenReturn(listSummary);
         when(idExtractor.extractPscId(any())).thenReturn(PSC_ID);
         when(listSummary.getCeased()).thenReturn(false);
         when(listSummary.getLinks()).thenReturn(null);
-    }
 
-    @Test
-    void shouldProcessMessage() {
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
 
         upsertService.processMessage(params);
@@ -69,6 +66,7 @@ class PscSearchUpsertServiceTest {
 
     @Test
     void shouldThrowExceptionWhenDeserialisationFails() {
+        when(resourceChangedData.getData()).thenReturn(DATA);
         when(deserialiser.deserialiseListSummary(anyString())).thenThrow(new PscDeserialisationException("fail", new RuntimeException("bad json")));
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
 

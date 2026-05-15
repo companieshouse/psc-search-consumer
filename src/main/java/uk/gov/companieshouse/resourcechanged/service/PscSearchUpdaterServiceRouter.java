@@ -7,6 +7,8 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 
 import static uk.gov.companieshouse.Application.NAMESPACE;
 
+import java.util.Map;
+
 @Service
 public class PscSearchUpdaterServiceRouter {
 
@@ -34,6 +36,10 @@ public class PscSearchUpdaterServiceRouter {
         switch (messageType) {
             case "changed":
                 LOGGER.debug("This is a 'changed' type message.");
+                if ("company-psc-supersecure".equals(resourceKind) || "super-secure-beneficial-owner".equals(resourceKind)) {
+                    LOGGER.info("Skipping upsert for resource kind", Map.of("resourceKind", resourceKind, "resourceId", resourceId));
+                    return;
+                }
                 pscSearchUpsertService.processMessage(parameters);
                 break;
             case "deleted":
