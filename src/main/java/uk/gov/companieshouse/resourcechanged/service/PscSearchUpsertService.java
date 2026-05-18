@@ -16,12 +16,10 @@ public class PscSearchUpsertService implements ResourceChangedService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PscSearchUpsertService.class);
     private final PscDeserialiser deserialiser;
     private final PrimarySearchApiClient primarySearchApiClient;
-    private final IdExtractor idExtractor;
 
-    public PscSearchUpsertService(PscDeserialiser deserialiser, PrimarySearchApiClient primarySearchApiClient, IdExtractor idExtractor) {
+    public PscSearchUpsertService(PscDeserialiser deserialiser, PrimarySearchApiClient primarySearchApiClient) {
         this.deserialiser = deserialiser;
         this.primarySearchApiClient = primarySearchApiClient;
-        this.idExtractor = idExtractor;
     }
 
     @Override
@@ -30,7 +28,7 @@ public class PscSearchUpsertService implements ResourceChangedService {
         ResourceChangedData payload = parameters.getData();
         
         ListSummary listSummary = deserialiser.deserialiseListSummary(payload.getData());
-        String pscId = idExtractor.extractPscId(payload);
+        String pscId = payload.getResourceId();
 
         PscList pscList = new PscList();
         pscList.setItems(java.util.Collections.singletonList(listSummary));

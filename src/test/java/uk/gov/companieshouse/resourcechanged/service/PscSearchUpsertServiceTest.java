@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.resourcechanged.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -22,15 +21,13 @@ import uk.gov.companieshouse.stream.ResourceChangedData;
 @ExtendWith(MockitoExtension.class)
 class PscSearchUpsertServiceTest {
 
-    private static final String PSC_ID = "pscid_123";
+    private static final String PSC_ID = "123";
     private static final String DATA = "{\"some\":\"json\"}";
 
     @Mock
     private PscDeserialiser deserialiser;
     @Mock
     private PrimarySearchApiClient primarySearchApiClient;
-    @Mock
-    private IdExtractor idExtractor;
     @Mock
     private ListSummary listSummary;
     @Mock
@@ -42,8 +39,8 @@ class PscSearchUpsertServiceTest {
     @Test
     void shouldProcessMessage() {
         when(resourceChangedData.getData()).thenReturn(DATA);
+        when(resourceChangedData.getResourceId()).thenReturn(PSC_ID);
         when(deserialiser.deserialiseListSummary(anyString())).thenReturn(listSummary);
-        when(idExtractor.extractPscId(any())).thenReturn(PSC_ID);
         when(listSummary.getCeased()).thenReturn(false);
         when(listSummary.getLinks()).thenReturn(null);
 
