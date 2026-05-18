@@ -2,7 +2,7 @@
 
 ## Summary
 A service that consumes messages from the stream-company-psc topic and sends data to the primary-search-api, where a psc
-is a person with significant control.
+is a person with significant control. 
 
 ## Build requirements
 In order to build ```psc-search-consumer``` locally you will need the following:
