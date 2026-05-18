@@ -21,9 +21,12 @@ class PscSearchUpdaterServiceRouterTest {
     @Mock
     private PscSearchDeleteService deleteService;
 
+    @Mock
+    private PscSearchUpsertService upsertService;
+
     @Test
     void routeUnknownMessageTypeThrowsNonRetryable() {
-        PscSearchUpdaterServiceRouter router = new PscSearchUpdaterServiceRouter(deleteService);
+        PscSearchUpdaterServiceRouter router = new PscSearchUpdaterServiceRouter(deleteService, upsertService);
 
         ResourceChangedData data = mock(ResourceChangedData.class);
         when(data.getResourceId()).thenReturn("resource-unknown");
@@ -45,7 +48,7 @@ class PscSearchUpdaterServiceRouterTest {
 
     @Test
     void routeDeletedMessageCallsDeleteService() {
-        PscSearchUpdaterServiceRouter router = new PscSearchUpdaterServiceRouter(deleteService);
+        PscSearchUpdaterServiceRouter router = new PscSearchUpdaterServiceRouter(deleteService, upsertService);
 
         ResourceChangedData data = mock(ResourceChangedData.class);
         when(data.getResourceId()).thenReturn("resource-123");
@@ -63,6 +66,75 @@ class PscSearchUpdaterServiceRouterTest {
         router.route(params);
 
         verify(deleteService).processMessage(params);
+    }
+
+    @Test
+    void routeChangedMessageCallsUpsertService() {
+        PscSearchUpdaterServiceRouter router = new PscSearchUpdaterServiceRouter(deleteService, upsertService);
+
+        ResourceChangedData data = mock(ResourceChangedData.class);
+        when(data.getResourceId()).thenReturn("resource-456");
+        when(data.getResourceKind()).thenReturn("company-psc-individual");
+        when(data.getResourceUri()).thenReturn("/company/456/persons-with-significant-control/def");
+
+        when(data.getEvent()).thenReturn(EventRecord.newBuilder()
+                .setPublishedAt("1453896193333")
+                .setType("changed")
+                .setFieldsChanged(Collections.emptyList())
+                .build());
+
+        ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(data);
+
+        router.route(params);
+
+        verify(upsertService).processMessage(params);
+        verify(deleteService, never()).processMessage(params);
+    }
+
+    @Test
+    void routeChangedMessageWithSupersecureKindDoesNotCallUpsertService() {
+        PscSearchUpdaterServiceRouter router = new PscSearchUpdaterServiceRouter(deleteService, upsertService);
+
+        ResourceChangedData data = mock(ResourceChangedData.class);
+        when(data.getResourceId()).thenReturn("resource-789");
+        when(data.getResourceKind()).thenReturn("company-psc-supersecure");
+        when(data.getResourceUri()).thenReturn("/company/789/persons-with-significant-control/supersecure");
+
+        when(data.getEvent()).thenReturn(EventRecord.newBuilder()
+                .setPublishedAt("1453896193333")
+                .setType("changed")
+                .setFieldsChanged(Collections.emptyList())
+                .build());
+
+        ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(data);
+
+        router.route(params);
+
+        verify(upsertService, never()).processMessage(params);
+        verify(deleteService, never()).processMessage(params);
+    }
+
+    @Test
+    void routeChangedMessageWithSuperSecureBeneficialOwnerKindDoesNotCallUpsertService() {
+        PscSearchUpdaterServiceRouter router = new PscSearchUpdaterServiceRouter(deleteService, upsertService);
+
+        ResourceChangedData data = mock(ResourceChangedData.class);
+        when(data.getResourceId()).thenReturn("resource-101");
+        when(data.getResourceKind()).thenReturn("super-secure-beneficial-owner");
+        when(data.getResourceUri()).thenReturn("/company/101/persons-with-significant-control/supersecurebo");
+
+        when(data.getEvent()).thenReturn(EventRecord.newBuilder()
+                .setPublishedAt("1453896193333")
+                .setType("changed")
+                .setFieldsChanged(Collections.emptyList())
+                .build());
+
+        ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(data);
+
+        router.route(params);
+
+        verify(upsertService, never()).processMessage(params);
+        verify(deleteService, never()).processMessage(params);
     }
 }
 

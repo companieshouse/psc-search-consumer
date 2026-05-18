@@ -9,6 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.psc.PscList;
+
 import static uk.gov.companieshouse.common.TestUtils.DELETE_PSC_API_CALL;
 
 import static org.mockito.Mockito.mock;
@@ -73,4 +75,43 @@ class PrimarySearchApiClientTest {
 
         verify(responseHandler).handle(DELETE_PSC_API_CALL, uriEx);
     }
+
+    @Test
+    void upsertPscSuccessfulPut() throws Exception {
+        PscList pscList = mock(PscList.class);
+        
+        when(apiClient.privateSearchResourceHandler().pscSearch().put(RESOURCE_URI, pscList).execute()).thenReturn(null);
+        org.mockito.Mockito.clearInvocations(apiClient.privateSearchResourceHandler().pscSearch());
+
+        primarySearchApiClient.upsertPsc(PSC_ID, pscList);
+
+        // verify put called with expected uri and payload
+        verify(apiClient.privateSearchResourceHandler().pscSearch()).put(RESOURCE_URI, pscList);
+        verifyNoInteractions(responseHandler);
+    }
+
+    @Test
+    void upsertPscApiErrorResponseCallsResponseHandler() throws Exception {
+        PscList pscList = mock(PscList.class);
+        ApiErrorResponseException apiError = mock(ApiErrorResponseException.class);
+
+        when(apiClient.privateSearchResourceHandler().pscSearch().put(RESOURCE_URI, pscList).execute()).thenThrow(apiError);
+
+        primarySearchApiClient.upsertPsc(PSC_ID, pscList);
+
+        verify(responseHandler).handle("PSC Search API PUT", RESOURCE_URI, apiError);
+    }
+
+    @Test
+    void upsertUriValidationExceptionCallsResponseHandler() throws Exception {
+        PscList pscList = mock(PscList.class);
+        URIValidationException uriEx = mock(URIValidationException.class);
+
+        when(apiClient.privateSearchResourceHandler().pscSearch().put(RESOURCE_URI, pscList).execute()).thenThrow(uriEx);
+
+        primarySearchApiClient.upsertPsc(PSC_ID, pscList);
+
+        verify(responseHandler).handle("PSC Search API PUT", uriEx);
+    }
+
 }

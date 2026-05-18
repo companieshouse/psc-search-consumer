@@ -10,7 +10,6 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import uk.gov.companieshouse.common.logging.DataMapHolder;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-import uk.gov.companieshouse.stream.ResourceChangedData;
 
 import static org.springframework.kafka.support.KafkaHeaders.EXCEPTION_MESSAGE;
 import static org.springframework.kafka.support.KafkaHeaders.ORIGINAL_OFFSET;
