@@ -3,10 +3,12 @@ package uk.gov.companieshouse.resourcechanged.service;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.companieshouse.common.exception.NonRetryableException;
 import uk.gov.companieshouse.common.logging.DataMapHolder;
 import uk.gov.companieshouse.api.psc.ListSummary;
 import uk.gov.companieshouse.api.psc.PscList;
 import uk.gov.companieshouse.resourcechanged.serdes.PscDeserialiser;
+import uk.gov.companieshouse.resourcechanged.util.PscIdExtractor;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 import uk.gov.companieshouse.common.client.PrimarySearchApiClient;
 
@@ -16,10 +18,12 @@ public class PscSearchUpsertService implements ResourceChangedService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PscSearchUpsertService.class);
     private final PscDeserialiser deserialiser;
     private final PrimarySearchApiClient primarySearchApiClient;
+    private final PscIdExtractor pscIdExtractor;
 
-    public PscSearchUpsertService(PscDeserialiser deserialiser, PrimarySearchApiClient primarySearchApiClient) {
+    public PscSearchUpsertService(PscDeserialiser deserialiser, PrimarySearchApiClient primarySearchApiClient, PscIdExtractor pscIdExtractor) {
         this.deserialiser = deserialiser;
         this.primarySearchApiClient = primarySearchApiClient;
+        this.pscIdExtractor = pscIdExtractor;
     }
 
     @Override
@@ -28,7 +32,13 @@ public class PscSearchUpsertService implements ResourceChangedService {
         ResourceChangedData payload = parameters.getData();
         
         ListSummary listSummary = deserialiser.deserialiseListSummary(payload.getData());
-        String pscId = payload.getResourceId();
+        String resourceId = payload.getResourceId();
+        String pscId = pscIdExtractor.extractPscId(listSummary)
+                .orElseThrow(() -> {
+                    LOGGER.error("Could not extract PSC ID from notifications link, resourceId: {}", resourceId);
+                    return new NonRetryableException(
+                            "Could not extract PSC ID from notifications link for resourceId: " + resourceId);
+                });
 
         PscList pscList = new PscList();
         pscList.setItems(java.util.Collections.singletonList(listSummary));

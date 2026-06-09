@@ -14,9 +14,13 @@ import org.mockito.ArgumentCaptor;
 import uk.gov.companieshouse.api.psc.ListSummary;
 import uk.gov.companieshouse.api.psc.PscList;
 import uk.gov.companieshouse.common.client.PrimarySearchApiClient;
+import uk.gov.companieshouse.common.exception.NonRetryableException;
 import uk.gov.companieshouse.common.exception.PscDeserialisationException;
 import uk.gov.companieshouse.resourcechanged.serdes.PscDeserialiser;
 import uk.gov.companieshouse.stream.ResourceChangedData;
+import uk.gov.companieshouse.resourcechanged.util.PscIdExtractor;
+
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class PscSearchUpsertServiceTest {
@@ -32,7 +36,8 @@ class PscSearchUpsertServiceTest {
     private ListSummary listSummary;
     @Mock
     private ResourceChangedData resourceChangedData;
-
+    @Mock
+    private PscIdExtractor pscIdExtractor;
     @InjectMocks
     private PscSearchUpsertService upsertService;
 
@@ -43,7 +48,7 @@ class PscSearchUpsertServiceTest {
         when(deserialiser.deserialiseListSummary(anyString())).thenReturn(listSummary);
         when(listSummary.getCeased()).thenReturn(false);
         when(listSummary.getLinks()).thenReturn(null);
-
+        when(pscIdExtractor.extractPscId(listSummary)).thenReturn(Optional.of(PSC_ID));
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
 
         upsertService.processMessage(params);
@@ -69,6 +74,18 @@ class PscSearchUpsertServiceTest {
         Executable executable = () -> upsertService.processMessage(params);
         PscDeserialisationException exception = assertThrows(PscDeserialisationException.class, executable);
         assertEquals("fail", exception.getMessage());
+        verifyNoInteractions(primarySearchApiClient);
+    }
+
+    @Test
+    void shouldThrowNonRetryableExceptionWhenPscIdCannotBeExtracted() {
+        when(resourceChangedData.getData()).thenReturn(DATA);
+        when(resourceChangedData.getResourceId()).thenReturn(PSC_ID);
+        when(deserialiser.deserialiseListSummary(anyString())).thenReturn(listSummary);
+        when(pscIdExtractor.extractPscId(listSummary)).thenReturn(Optional.empty());
+        ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
+
+        assertThrows(NonRetryableException.class, () -> upsertService.processMessage(params));
         verifyNoInteractions(primarySearchApiClient);
     }
 
