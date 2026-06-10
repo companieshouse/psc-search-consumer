@@ -45,7 +45,7 @@ class PscSearchDeleteServiceTest {
 		when(deserialiser.deserialiseListSummary(anyString())).thenReturn(listSummary);
 
 		// extractor is called with the deserialised ListSummary
-		when(pscIdExtractor.extractPscId(eq(listSummary))).thenReturn(Optional.of(pscId));
+		when(pscIdExtractor.extractPscId(listSummary)).thenReturn(Optional.of(pscId));
 
 
 		ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(data);
@@ -70,7 +70,7 @@ class PscSearchDeleteServiceTest {
 		when(deserialiser.deserialiseListSummary(anyString())).thenReturn(listSummary);
 
 		// extractor cannot extract PSC id
-		when(pscIdExtractor.extractPscId(eq(listSummary))).thenReturn(Optional.empty());
+		when(pscIdExtractor.extractPscId(listSummary)).thenReturn(Optional.empty());
 		when(data.getResourceId()).thenReturn("resource-id");
 
 		ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(data);
