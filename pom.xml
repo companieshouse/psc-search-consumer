@@ -19,6 +19,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <spring.boot.version>3.5.14</spring.boot.version>
+        <spring-framework.version>6.2.19</spring-framework.version>
         <cucumber.version>7.23.0</cucumber.version>
         <test-containers.version>2.0.4</test-containers.version>
         <jib.version>3.5.1</jib.version>
@@ -71,6 +72,12 @@
                 <version>${test-containers.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- CVE-2026-41841, CVE-2026-41840, CVE-2026-41851, CVE-2026-41850, CVE-2026-41843, CVE-2026-41842 -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring-framework.version}</version>
             </dependency>
             <!-- CVE-2025-68161(6.3) -->
             <dependency>
