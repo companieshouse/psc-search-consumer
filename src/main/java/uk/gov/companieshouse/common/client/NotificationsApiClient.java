@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
-import uk.gov.companieshouse.api.officer.AppointmentList;
+import uk.gov.companieshouse.api.psc_notifications.NotificationList;
 import uk.gov.companieshouse.api.psc_notifications.PscNotificationSummary;
 import uk.gov.companieshouse.api.request.QueryParam;
 import uk.gov.companieshouse.common.logging.DataMapHolder;
@@ -35,8 +35,8 @@ public class NotificationsApiClient {
         InternalApiClient apiClient = apiClientSupplier.get();
         apiClient.getHttpClient().setRequestId(DataMapHolder.getRequestId());
         try {
-            return Optional.of(apiClient.privateCompanyAppointmentsListHandler()
-                    .getCompanyAppointment(resourceUri)
+            return Optional.of(apiClient.privateCompanyNotificationsListHandler()
+                    .getPscNotification(resourceUri)
                     .execute()
                     .getData());
         } catch (ApiErrorResponseException ex) {
@@ -51,21 +51,21 @@ public class NotificationsApiClient {
         return Optional.empty();
     }
 
-    public Optional<AppointmentList> getPscAppointmentListForDelete(String resourceUri) {
-        return getPscAppointmentList(resourceUri, false);
+    public Optional<NotificationList> getPscNotificationListForDelete(String resourceUri) {
+        return getPscNotificationList(resourceUri, false);
     }
 
-    public Optional<AppointmentList> getPscAppointmentListForUpsert(String resourceUri) {
-        return getPscAppointmentList(resourceUri, true);
+    public Optional<NotificationList> getPscNotificationListForUpsert(String resourceUri) {
+        return getPscNotificationList(resourceUri, true);
     }
 
-    public Optional<AppointmentList> getPscAppointmentList(String resourceUri, boolean isUpsert) {
+    public Optional<NotificationList> getPscNotificationList(String resourceUri, boolean isUpsert) {
 
         InternalApiClient apiClient = apiClientSupplier.get();
         apiClient.getHttpClient().setRequestId(DataMapHolder.getRequestId());
         try {
-            return Optional.of(apiClient.privateOfficerAppointmentsListHandler()
-                    .getAppointmentsList(resourceUri)
+            return Optional.of(apiClient.privatePscNotificationsListHandler()
+                    .getNotificationsList(resourceUri)
                     .queryParams(ITEMS_PER_PAGE_500)
                     .execute()
                     .getData());
