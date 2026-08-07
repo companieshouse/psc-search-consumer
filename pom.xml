@@ -23,9 +23,9 @@
         <cucumber.version>7.23.0</cucumber.version>
         <test-containers.version>2.0.4</test-containers.version>
         <jib.version>3.5.1</jib.version>
-        <structured-logging.version>3.0.56</structured-logging.version>
+        <structured-logging.version>4.0.2</structured-logging.version>
         <api-sdk-manager-java-library.version>3.0.28</api-sdk-manager-java-library.version>
-        <private-api-sdk-java.version>7.1.4</private-api-sdk-java.version>
+        <private-api-sdk-java.version>7.2.9</private-api-sdk-java.version>
         <kafka-models.version>3.0.35</kafka-models.version>
         <ch-kafka.version>3.0.6</ch-kafka.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
