@@ -29,7 +29,7 @@
         <kafka-models.version>3.0.29</kafka-models.version>
         <ch-kafka.version>3.0.6</ch-kafka.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
-        <log4j-api.version>2.25.4</log4j-api.version>
+        <log4j-api.version>2.25.5</log4j-api.version>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
         <tomcat-embed-core.version>11.0.22</tomcat-embed-core.version>
