@@ -41,7 +41,7 @@ import java.util.Optional;
 public class ResourceChangedMessageLoggingAspect {
     private final int maxAttempts;
 
-    public ResourceChangedMessageLoggingAspect(@Value("${consumer.max-attempts}") int maxAttempts) { this.maxAttempts = maxAttempts; }
+    public ResourceChangedMessageLoggingAspect(@Value("${consumer.max_attempts}") int maxAttempts) { this.maxAttempts = maxAttempts; }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.NAMESPACE);
 
@@ -49,17 +49,17 @@ public class ResourceChangedMessageLoggingAspect {
     private static final String LOG_MESSAGE_PROCESSED = "Processed delta";
     private static final String EXCEPTION_MESSAGE = "%s exception thrown: %s";
 
-    @Before("execution(* uk.gov.companieshouse.resourcechanged.Consumer.consume(..))")
+    @Before("execution(* uk.gov.companieshouse.resourcechanged.ResourceChangedConsumer.consume(..))")
     public void logBeforeMainConsumer(JoinPoint joinPoint) {
         logMessage(LOG_MESSAGE_RECEIVED, (Message<?>)joinPoint.getArgs()[0]);
     }
 
-    @After("execution(* uk.gov.companieshouse.resourcechanged.Consumer.consume(..))")
+    @After("execution(* uk.gov.companieshouse.resourcechanged.ResourceChangedConsumer.consume(..))")
     void logAfterMainConsumer(JoinPoint joinPoint) {
         logMessage(LOG_MESSAGE_PROCESSED, (Message<?>)joinPoint.getArgs()[0]);
     }
 
-    @AfterThrowing(pointcut = "execution(* uk.gov.companieshouse.resourcechanged.Consumer.consume(..))", throwing = "error")
+    @AfterThrowing(pointcut = "execution(* uk.gov.companieshouse.resourcechanged.ResourceChangedConsumer.consume(..))", throwing = "error")
     public void afterThrowingAdvice(JoinPoint joinPoint, Throwable error) {
         logMessage(String.format(EXCEPTION_MESSAGE, error.getClass().getSimpleName(), error.getMessage()), (Message<?>) joinPoint.getArgs()[0]);
     }
