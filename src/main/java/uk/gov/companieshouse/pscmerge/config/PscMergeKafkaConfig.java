@@ -52,13 +52,13 @@ public class PscMergeKafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, PscMerge> pscMergeConcurrentKafkaListenerContainerFactory(
+    public ConcurrentKafkaListenerContainerFactory<String, PscMerge> pscMergeKafkaListenerContainerFactory(
             @Value("${PSC_MERGE_CONCURRENT_LISTENER_INSTANCES:1}") Integer concurrency,
             ConsumerFactory<String, PscMerge> consumerFactory) {
         ConcurrentKafkaListenerContainerFactory<String, PscMerge> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         factory.setConcurrency(concurrency);
-        factory.getContainerProperties().setAckCount(ContainerProperties.AckMode.RECORD.ordinal());
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
         return factory;
     }
 
