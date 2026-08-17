@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.kafka.exceptions.SerializationException;
 import uk.gov.companieshouse.kafka.serialization.SerializerFactory;
 import uk.gov.companieshouse.resourcechanged.service.ResourceChangedService;
@@ -21,7 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Supplier;
 
+import static org.mockito.Mockito.mock;
 import static uk.gov.companieshouse.common.TestUtils.ERROR_TOPIC;
 import static uk.gov.companieshouse.common.TestUtils.INVALID_TOPIC;
 import static uk.gov.companieshouse.common.TestUtils.MAIN_TOPIC;
@@ -74,5 +77,11 @@ public class TestKafkaConfig {
     @Primary
     public ResourceChangedService getService() {
         return new NonRetryableExceptionService();
+    }
+
+    @Bean
+    @Primary
+    public Supplier<InternalApiClient> internalApiClientSupplier() {
+        return () -> mock(InternalApiClient.class);
     }
 }
