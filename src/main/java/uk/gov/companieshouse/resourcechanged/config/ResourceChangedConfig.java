@@ -19,6 +19,8 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import uk.gov.companieshouse.Application;
+import uk.gov.companieshouse.api.InternalApiClient;
+import uk.gov.companieshouse.common.client.ApiClientService;
 import uk.gov.companieshouse.common.exception.NonRetryableException;
 import uk.gov.companieshouse.kafka.exceptions.SerializationException;
 import uk.gov.companieshouse.kafka.serialization.AvroSerializer;
@@ -34,6 +36,7 @@ import uk.gov.companieshouse.common.exception.MessageFlags;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 @Configuration
 @EnableKafka
@@ -106,7 +109,7 @@ public class ResourceChangedConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, ResourceChangedData> kafkaTemplate(ProducerFactory<String, ResourceChangedData> producerFactory) {
+    public KafkaTemplate<String, ResourceChangedData> defaultRetryTopicKafkaTemplate(ProducerFactory<String, ResourceChangedData> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 
@@ -118,5 +121,10 @@ public class ResourceChangedConfig {
         factory.setConcurrency(concurrency);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
         return factory;
+    }
+
+    @Bean
+    public Supplier<InternalApiClient> internalApiClientSupplier(ApiClientService apiClientService) {
+        return apiClientService::getInternalApiClient;
     }
 }
