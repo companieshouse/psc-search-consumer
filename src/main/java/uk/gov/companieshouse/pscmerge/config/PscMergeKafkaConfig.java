@@ -98,7 +98,7 @@ public class PscMergeKafkaConfig {
             @Value("${GROUP_ID:psc-search-consumer}") String groupId,
             @Value("${MAX_ATTEMPTS:5}") int attempts,
             @Value("${BACKOFF_DELAY:1500}") int delay) {
-        return new RetryTopicConfigurationBuilder()
+        return RetryTopicConfigurationBuilder
                 .newInstance()
                 .doNotAutoCreateRetryTopics()
                 .includeTopic(topic)
