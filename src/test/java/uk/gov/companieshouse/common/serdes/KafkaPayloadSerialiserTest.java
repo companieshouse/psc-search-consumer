@@ -1,4 +1,86 @@
 package uk.gov.companieshouse.common.serdes;
 
+import org.apache.avro.io.DatumWriter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.common.exception.NonRetryableException;
+import uk.gov.companieshouse.pscmerge.PscMerge;
+import uk.gov.companieshouse.stream.EventRecord;
+import uk.gov.companieshouse.stream.ResourceChangedData;
+
+import java.io.IOException;
+import java.util.Collections;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
+
+@ExtendWith(MockitoExtension.class)
 class KafkaPayloadSerialiserTest {
+
+    private static final String PSC_ID = "psc_id";
+    private static final String PREVIOUS_PSC_ID = "previous_officer_id";
+    private static final String CONTEXT_ID = "context_id";
+
+    @Mock
+    private DatumWriter<ResourceChangedData> writer;
+
+    @Test
+    void testSerialiseResourceChangedData() {
+        //given
+        ResourceChangedData changedData = new ResourceChangedData("resource_kind",
+                "resource_uri", "context_id", "resource_id", "data",
+                new EventRecord("published_at", "event_type", Collections.emptyList()));
+        try (KafkaPayloadSerialiser<ResourceChangedData> serialiser = new KafkaPayloadSerialiser<>(ResourceChangedData.class)) {
+
+            //when
+            byte[] actual = serialiser.serialize("topic", changedData);
+
+            //then
+            assertThat(actual, is(notNullValue()));
+        }
+    }
+
+    @Test
+    void testThrowNonRetryableExceptionIfIOExceptionThrown() throws IOException {
+        //given
+        ResourceChangedData changedData = new ResourceChangedData("resource_kind",
+                "resource_uri", "context_id", "resource_id", "data",
+                new EventRecord("", "changed", Collections.emptyList()));
+        KafkaPayloadSerialiser<ResourceChangedData> serialiser = spy(new KafkaPayloadSerialiser<>(ResourceChangedData.class));
+        doReturn(writer).when(serialiser).getDatumWriter();
+        doThrow(IOException.class).when(writer).write(any(), any());
+
+        //when
+        Executable actual = () -> serialiser.serialize("topic", changedData);
+
+        //then
+        NonRetryableException exception = assertThrows(NonRetryableException.class, actual);
+        assertThat(exception.getMessage(), is(equalTo("Error serialising message payload")));
+        assertThat(exception.getCause(), is(instanceOf(IOException.class)));
+    }
+
+    @Test
+    void testSerialisePscMerge() {
+        //given
+        PscMerge pscMerge = new PscMerge(PSC_ID, PREVIOUS_PSC_ID, CONTEXT_ID);
+        try (KafkaPayloadSerialiser<PscMerge> serialiser = new KafkaPayloadSerialiser<>(PscMerge.class)) {
+
+            //when
+            byte[] actual = serialiser.serialize("topic", pscMerge);
+
+            //then
+            assertThat(actual, is(notNullValue()));
+        }
+    }
 }
