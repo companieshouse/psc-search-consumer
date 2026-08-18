@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpResponseException;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.InternalApiClient;
-import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.handler.notification.PrivateCompanyNotification;
@@ -32,7 +30,6 @@ import uk.gov.companieshouse.api.psc_notifications.NotificationList;
 import uk.gov.companieshouse.api.psc_notifications.PscNotificationSummary;
 import uk.gov.companieshouse.api.request.QueryParam;
 
-import javax.management.Query;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +37,11 @@ import java.util.function.Supplier;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationsApiClientTest {
+
+    private static final String COMPANY_NOTIFICATION_LINK = "/company/12345678/notifications/987ihg654fed321cba";
+    private static final String GET_NOTIFICATION_CALL = "Notifications API GET Notification";
+    private static final String GET_PSC_NOTIFICATIONS_CALL = "Notifications API GET Psc Notifications";
+    private static final String PSC_NOTIFICATIONS_LINK = "/psc/abc123def456ghi789/notifications";
 
     @Mock
     private Supplier<InternalApiClient> clientSupplier;
@@ -82,14 +84,12 @@ class NotificationsApiClientTest {
                 new ApiResponse<>(200, Collections.emptyMap(), pscNotificationSummary));
 
         //when
-        Optional<PscNotificationSummary> actual = client.getNotification(
-                "/company/12345678/notifications/987ihg654fed321cba");
+        Optional<PscNotificationSummary> actual = client.getNotification(COMPANY_NOTIFICATION_LINK);
 
         //then
         assertTrue(actual.isPresent());
         assertEquals(pscNotificationSummary, actual.get());
-        verify(privateCompanyNotificationsListHandler).getPscNotification(
-                "/company/12345678/notifications/987ihg654fed321cba");
+        verify(privateCompanyNotificationsListHandler).getPscNotification(COMPANY_NOTIFICATION_LINK);
     }
 
     @Test
@@ -105,13 +105,11 @@ class NotificationsApiClientTest {
         when(privateCompanyNotification.execute()).thenThrow(apiErrorResponseException);
 
         //when
-        Optional<PscNotificationSummary> actual = client.getNotification(
-                "/company/12345678/notifications/987ihg654fed321cba");
+        Optional<PscNotificationSummary> actual = client.getNotification(COMPANY_NOTIFICATION_LINK);
 
         //then
         assertTrue(actual.isEmpty());
-        verify(privateCompanyNotificationsListHandler).getPscNotification(
-                "/company/12345678/notifications/987ihg654fed321cba");
+        verify(privateCompanyNotificationsListHandler).getPscNotification(COMPANY_NOTIFICATION_LINK);
         verifyNoInteractions(responseHandler);
     }
 
@@ -127,13 +125,11 @@ class NotificationsApiClientTest {
         when(privateCompanyNotificationsListHandler.getPscNotification(any())).thenReturn(privateCompanyNotification);
         when(privateCompanyNotification.execute()).thenThrow(apiErrorResponseException);
 
-        client.getNotification("/company/12345678/notifications/987ihg654fed321cba");
+        client.getNotification(COMPANY_NOTIFICATION_LINK);
 
         //then
-        verify(privateCompanyNotificationsListHandler).getPscNotification(
-                "/company/12345678/notifications/987ihg654fed321cba");
-        verify(responseHandler).handle("Notifications API GET Notification",
-                "/company/12345678/notifications/987ihg654fed321cba", apiErrorResponseException);
+        verify(privateCompanyNotificationsListHandler).getPscNotification(COMPANY_NOTIFICATION_LINK);
+        verify(responseHandler).handle(GET_NOTIFICATION_CALL, COMPANY_NOTIFICATION_LINK, apiErrorResponseException);
     }
 
     @Test
@@ -146,11 +142,11 @@ class NotificationsApiClientTest {
         when(privateCompanyNotification.execute()).thenThrow(uriValidationException);
 
         //when
-        client.getNotification("/company/12345678/notifications/987ihg654fed321cba");
+        client.getNotification(COMPANY_NOTIFICATION_LINK);
 
         //then
-        verify(privateCompanyNotificationsListHandler).getPscNotification("/company/12345678/notifications/987ihg654fed321cba");
-        verify(responseHandler).handle("Notifications API GET Notification", uriValidationException);
+        verify(privateCompanyNotificationsListHandler).getPscNotification(COMPANY_NOTIFICATION_LINK);
+        verify(responseHandler).handle(GET_NOTIFICATION_CALL, uriValidationException);
     }
 
     @Test
@@ -164,7 +160,7 @@ class NotificationsApiClientTest {
                 new ApiResponse<>(200, Collections.emptyMap(), notificationList));
 
         //when
-        Optional<NotificationList> actual = client.getPscNotificationListForUpsert("/psc/abc123def456ghi789/notifications");
+        Optional<NotificationList> actual = client.getPscNotificationListForUpsert(PSC_NOTIFICATIONS_LINK);
 
         //then
         assertTrue(actual.isPresent());
@@ -173,7 +169,7 @@ class NotificationsApiClientTest {
         QueryParam queryParamArgument = queryParamCaptor.getValue().getFirst();
         assertEquals("items_per_page", queryParamArgument.getKey());
         assertEquals("500", queryParamArgument.getValue());
-        verify(notificationsListHandler).getNotificationsList("/psc/abc123def456ghi789/notifications");
+        verify(notificationsListHandler).getNotificationsList(PSC_NOTIFICATIONS_LINK);
     }
 
     @Test
@@ -191,7 +187,7 @@ class NotificationsApiClientTest {
         when(privatePscNotificationsListGet.execute()).thenThrow(apiErrorResponseException);
 
         //when
-        Optional<NotificationList> actual = client.getPscNotificationListForUpsert("/psc/abc123def456ghi789/notifications");
+        Optional<NotificationList> actual = client.getPscNotificationListForUpsert(PSC_NOTIFICATIONS_LINK);
 
         //then
         assertTrue(actual.isEmpty());
@@ -199,7 +195,7 @@ class NotificationsApiClientTest {
         QueryParam queryParamArgument = queryParamCaptor.getValue().getFirst();
         assertEquals("items_per_page", queryParamArgument.getKey());
         assertEquals("500", queryParamArgument.getValue());
-        verify(notificationsListHandler).getNotificationsList("/psc/abc123def456ghi789/notifications");
+        verify(notificationsListHandler).getNotificationsList(PSC_NOTIFICATIONS_LINK);
         verifyNoInteractions(responseHandler);
     }
 
@@ -219,7 +215,7 @@ class NotificationsApiClientTest {
         when(privatePscNotificationsListGet.execute()).thenThrow(apiErrorResponseException);
 
         //when
-        Optional<NotificationList> actual = client.getPscNotificationListForDelete("/psc/abc123def456ghi789/notifications");
+        Optional<NotificationList> actual = client.getPscNotificationListForDelete(PSC_NOTIFICATIONS_LINK);
 
         //then
         assertTrue(actual.isEmpty());
@@ -227,7 +223,7 @@ class NotificationsApiClientTest {
         QueryParam queryParamArgument = queryParamCaptor.getValue().getFirst();
         assertEquals("items_per_page", queryParamArgument.getKey());
         assertEquals("500", queryParamArgument.getValue());
-        verify(notificationsListHandler).getNotificationsList("/psc/abc123def456ghi789/notifications");
+        verify(notificationsListHandler).getNotificationsList(PSC_NOTIFICATIONS_LINK);
         verifyNoInteractions(responseHandler);
     }
 
@@ -247,15 +243,15 @@ class NotificationsApiClientTest {
         when(privatePscNotificationsListGet.execute()).thenThrow(apiErrorResponseException);
 
         //when
-        client.getPscNotificationListForDelete("/psc/abc123def456ghi789/notifications");
+        client.getPscNotificationListForDelete(PSC_NOTIFICATIONS_LINK);
 
         //then
         verify(privatePscNotificationsListGet).queryParams(queryParamCaptor.capture());
         QueryParam queryParamArgument = queryParamCaptor.getValue().getFirst();
         assertEquals("items_per_page", queryParamArgument.getKey());
         assertEquals("500", queryParamArgument.getValue());
-        verify(notificationsListHandler).getNotificationsList("/psc/abc123def456ghi789/notifications");
-        verify(responseHandler).handle("Notifications API GET Psc Notifications", "/psc/abc123def456ghi789/notifications", apiErrorResponseException);
+        verify(notificationsListHandler).getNotificationsList(PSC_NOTIFICATIONS_LINK);
+        verify(responseHandler).handle(GET_PSC_NOTIFICATIONS_CALL, PSC_NOTIFICATIONS_LINK, apiErrorResponseException);
     }
 
     @Test
@@ -270,14 +266,14 @@ class NotificationsApiClientTest {
         when(privatePscNotificationsListGet.execute()).thenThrow(uriValidationException);
 
         //when
-        client.getPscNotificationListForUpsert("/psc/abc123def456ghi789/notifications");
+        client.getPscNotificationListForUpsert(PSC_NOTIFICATIONS_LINK);
 
         //then
         verify(privatePscNotificationsListGet).queryParams(queryParamCaptor.capture());
         QueryParam queryParamArgument = queryParamCaptor.getValue().getFirst();
         assertEquals("items_per_page", queryParamArgument.getKey());
         assertEquals("500", queryParamArgument.getValue());
-        verify(notificationsListHandler).getNotificationsList("/psc/abc123def456ghi789/notifications");
-        verify(responseHandler).handle("Notifications API GET Psc Notifications", uriValidationException);
+        verify(notificationsListHandler).getNotificationsList(PSC_NOTIFICATIONS_LINK);
+        verify(responseHandler).handle(GET_PSC_NOTIFICATIONS_CALL, uriValidationException);
     }
 }
