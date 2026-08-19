@@ -4,12 +4,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static uk.gov.companieshouse.common.TestUtils.writePayloadToBytes;
 
 import org.apache.avro.AvroRuntimeException;
-import org.apache.avro.io.DatumWriter;
-import org.apache.avro.io.Encoder;
-import org.apache.avro.io.EncoderFactory;
-import org.apache.avro.reflect.ReflectDatumWriter;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -18,7 +15,6 @@ import uk.gov.companieshouse.pscmerge.PscMerge;
 import uk.gov.companieshouse.stream.EventRecord;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -94,17 +90,6 @@ class KafkaPayloadDeserialiserTest {
             InvalidPayloadException exception = assertThrows(InvalidPayloadException.class, actual);
             assertThat(exception.getMessage(), is(equalTo("Invalid payload: [invalid] was provided.")));
             assertThat(exception.getCause(), is(CoreMatchers.instanceOf(AvroRuntimeException.class)));
-        }
-    }
-
-    private static <T> byte[] writePayloadToBytes(T data, Class<T> type) {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            Encoder encoder = EncoderFactory.get().directBinaryEncoder(outputStream, null);
-            DatumWriter<T> writer = new ReflectDatumWriter<>(type);
-            writer.write(data, encoder);
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 }
