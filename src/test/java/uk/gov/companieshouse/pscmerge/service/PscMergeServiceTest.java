@@ -5,6 +5,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.common.TestUtils.CONTEXT_ID;
+import static uk.gov.companieshouse.common.TestUtils.PSC_ID;
+import static uk.gov.companieshouse.pscmerge.PscMergeTestUtils.PREVIOUS_PSC_ID;
+import static uk.gov.companieshouse.pscmerge.PscMergeTestUtils.PSC_NOTIFICATIONS_LINK_MERGE;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,11 +26,6 @@ import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class PscMergeServiceTest {
-
-    private static final String PSC_NOTIFICATIONS_LINK_MERGE = "/psc/previous_psc_id/notifications";
-    private static final String PREVIOUS_PSC_ID = "previous_psc_id";
-    private static final String PSC_ID = "psc_id";
-    private static final String CONTEXT_ID = "context_id";
 
     @Mock
     private Message<PscMerge> pscMergeMessage;
