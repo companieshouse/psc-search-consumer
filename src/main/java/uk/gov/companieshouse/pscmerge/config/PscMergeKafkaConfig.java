@@ -76,8 +76,8 @@ public class PscMergeKafkaConfig {
                         ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
                         ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DelegatingByTypeSerializer.class,
                         ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, InvalidMessageRouter.class.getName(),
-                        "message-flags", messageFlags,
-                        "invalid-message-topic", "%s-%s-invalid".formatted(topic, groupId)),
+                        "message.flags", messageFlags,
+                        "invalid.message.topic", "%s-%s-invalid".formatted(topic, groupId)),
                 new StringSerializer(),
                 new DelegatingByTypeSerializer(
                         Map.of(
