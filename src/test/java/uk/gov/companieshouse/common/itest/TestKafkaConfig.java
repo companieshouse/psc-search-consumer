@@ -21,7 +21,6 @@ import uk.gov.companieshouse.stream.ResourceChangedData;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
 import java.util.function.Supplier;
 
 import static org.mockito.Mockito.mock;
@@ -32,11 +31,6 @@ import static uk.gov.companieshouse.common.TestUtils.RETRY_TOPIC;
 
 @TestConfiguration
 public class TestKafkaConfig {
-
-    @Bean
-    CountDownLatch latch(@Value("${steps}") int steps) {
-        return new CountDownLatch(steps);
-    }
 
     @Bean
     KafkaConsumer<String, ResourceChangedData> testConsumer(
