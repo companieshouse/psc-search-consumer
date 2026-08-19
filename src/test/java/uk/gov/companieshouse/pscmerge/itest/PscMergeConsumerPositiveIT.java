@@ -2,16 +2,15 @@ package uk.gov.companieshouse.pscmerge.itest;
 
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.messaging.Message;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -34,8 +33,9 @@ import static uk.gov.companieshouse.pscmerge.PscMergeTestUtils.PSC_MERGE_RETRY_T
 import static uk.gov.companieshouse.pscmerge.PscMergeTestUtils.PSC_MERGE_TOPIC;
 
 @ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test_main_positive")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class OfficerMergeConsumerPositiveIT extends AbstractKafkaTest {
+public class PscMergeConsumerPositiveIT extends AbstractKafkaTest {
 
     @MockitoBean
     private PscMergeService service;
