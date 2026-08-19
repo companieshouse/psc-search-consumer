@@ -39,8 +39,6 @@ class ResourceChangedConsumerPositiveTest extends AbstractKafkaIntegrationTest {
     private KafkaProducer<String, ResourceChangedData> testProducer;
     @Autowired
     private KafkaConsumer<String, ResourceChangedData> testConsumer;
-    @Autowired
-    private CountDownLatch latch;
 
     @MockitoBean
     private PscSearchUpdaterServiceRouter router;
@@ -55,7 +53,7 @@ class ResourceChangedConsumerPositiveTest extends AbstractKafkaIntegrationTest {
 
         testProducer.send(new ProducerRecord<>(MAIN_TOPIC, 0, System.currentTimeMillis(), "key",
                 RESOURCE_CHANGED_DATA));
-        if (!latch.await(5L, TimeUnit.SECONDS)) {
+        if (!consumerAspect.getLatch().await(5L, TimeUnit.SECONDS)) {
             fail("Timed out waiting for latch");
         }
         ConsumerRecords<?, ?> consumerRecords = KafkaTestUtils.getRecords(testConsumer, Duration.ofSeconds(10), 1);

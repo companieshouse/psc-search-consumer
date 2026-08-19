@@ -23,7 +23,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.context.ActiveProfiles;
 import java.time.Duration;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -31,7 +30,6 @@ import uk.gov.companieshouse.common.TestUtils;
 import uk.gov.companieshouse.common.exception.RetryableException;
 import uk.gov.companieshouse.common.itest.AbstractKafkaIntegrationTest;
 import uk.gov.companieshouse.resourcechanged.service.PscSearchUpdaterServiceRouter;
-import uk.gov.companieshouse.resourcechanged.service.ResourceChangedService;
 import uk.gov.companieshouse.resourcechanged.service.ResourceChangedServiceParameters;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
@@ -43,9 +41,6 @@ class ResourceChangedConsumerRetryableExceptionTest extends AbstractKafkaIntegra
     private KafkaProducer<String, ResourceChangedData> testProducer;
     @Autowired
     private KafkaConsumer<String, ResourceChangedData> testConsumer;
-
-    @Autowired
-    private CountDownLatch latch;
 
     @MockitoBean
     private PscSearchUpdaterServiceRouter router;
@@ -63,7 +58,7 @@ class ResourceChangedConsumerRetryableExceptionTest extends AbstractKafkaIntegra
         //when
         testProducer.send(new ProducerRecord<>(MAIN_TOPIC, 0, System.currentTimeMillis(), "key",
                 RESOURCE_CHANGED_DATA));
-        if (!latch.await(5L, TimeUnit.SECONDS)) {
+        if (!consumerAspect.getLatch().await(5L, TimeUnit.SECONDS)) {
             fail("Timed out waiting for latch");
         }
         ConsumerRecords<?, ?> consumerRecords = KafkaTestUtils.getRecords(testConsumer, Duration.ofSeconds(10), 6);
