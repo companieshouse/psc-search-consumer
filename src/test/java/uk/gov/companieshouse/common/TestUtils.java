@@ -1,11 +1,16 @@
 package uk.gov.companieshouse.common;
 
+import org.apache.avro.io.DatumWriter;
+import org.apache.avro.io.Encoder;
+import org.apache.avro.io.EncoderFactory;
+import org.apache.avro.reflect.ReflectDatumWriter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 import uk.gov.companieshouse.stream.EventRecord;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -21,6 +26,9 @@ public final class TestUtils {
     public static final String DELETE_PSC_API_CALL = "PSC Search API DELETE";
     public static final String PSC_SEARCH_LINK = "/persons-with-significant-control-search/persons-with-significant-control/123";
     public static final ResourceChangedData RESOURCE_CHANGED_DATA;
+
+    public static final String CONTEXT_ID = "context_id";
+    public static final String PSC_ID = "psc_id";
 
     static {
         try {
@@ -55,5 +63,16 @@ public final class TestUtils {
             count++;
         }
         return count;
+    }
+
+    public static <T> byte[] writePayloadToBytes(T data, Class<T> type) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            Encoder encoder = EncoderFactory.get().directBinaryEncoder(outputStream, null);
+            DatumWriter<T> writer = new ReflectDatumWriter<>(type);
+            writer.write(data, encoder);
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
