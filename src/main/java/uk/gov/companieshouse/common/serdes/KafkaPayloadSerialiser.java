@@ -1,0 +1,38 @@
+package uk.gov.companieshouse.common.serdes;
+
+
+import org.apache.avro.io.DatumWriter;
+import org.apache.avro.io.Encoder;
+import org.apache.avro.io.EncoderFactory;
+import org.apache.avro.reflect.ReflectDatumWriter;
+import org.apache.kafka.common.serialization.Serializer;
+import uk.gov.companieshouse.common.exception.NonRetryableException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+public class KafkaPayloadSerialiser<T> implements Serializer<T> {
+
+    private final Class<T> type;
+
+    public KafkaPayloadSerialiser(Class<T> type) {
+        this.type = type;
+    }
+
+    @Override
+    public byte[] serialize(String topic, T data) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Encoder encoder = EncoderFactory.get().directBinaryEncoder(outputStream, null);
+        DatumWriter<T> writer = getDatumWriter();
+        try {
+            writer.write(data, encoder);
+        } catch (IOException e) {
+            throw new NonRetryableException("Error serialising message payload", e);
+        }
+        return outputStream.toByteArray();
+    }
+
+    public DatumWriter<T> getDatumWriter() {
+        return new ReflectDatumWriter<>(type);
+    }
+ }

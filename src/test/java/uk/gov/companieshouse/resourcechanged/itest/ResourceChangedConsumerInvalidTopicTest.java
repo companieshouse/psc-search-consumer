@@ -34,8 +34,6 @@ class ResourceChangedConsumerInvalidTopicTest extends AbstractKafkaIntegrationTe
     private KafkaProducer<String, ResourceChangedData> testProducer;
     @Autowired
     private KafkaConsumer<String, ResourceChangedData> testConsumer;
-    @Autowired
-    private CountDownLatch latch;
 
     @BeforeEach
     void drainKafkaTopics() {
@@ -48,7 +46,7 @@ class ResourceChangedConsumerInvalidTopicTest extends AbstractKafkaIntegrationTe
         //when
         testProducer.send(new ProducerRecord<>(MAIN_TOPIC, 0, System.currentTimeMillis(), "key",
                 RESOURCE_CHANGED_DATA));
-        if (!latch.await(5L, TimeUnit.SECONDS)) {
+        if (!consumerAspect.getLatch().await(5L, TimeUnit.SECONDS)) {
             fail("Timed out waiting for latch");
         }
         ConsumerRecords<?, ?> consumerRecords = KafkaTestUtils.getRecords(testConsumer, Duration.ofSeconds(10), 2);
