@@ -32,8 +32,8 @@
         <log4j-api.version>2.25.4</log4j-api.version>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
-        <tomcat-embed-core.version>11.0.22</tomcat-embed-core.version>
-        <tomcat-embed-websocket.version>11.0.22</tomcat-embed-websocket.version>
+        <tomcat-embed-core.version>11.0.23</tomcat-embed-core.version>
+        <tomcat-embed-websocket.version>11.0.23</tomcat-embed-websocket.version>
 
         <skip.unit.tests>true</skip.unit.tests>
         <skip.integration.tests>false</skip.integration.tests>
