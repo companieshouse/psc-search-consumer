@@ -18,7 +18,7 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <spring.boot.version>3.5.14</spring.boot.version>
+        <spring.boot.version>3.5.15</spring.boot.version>
         <spring-framework.version>6.2.19</spring-framework.version>
         <cucumber.version>7.23.0</cucumber.version>
         <test-containers.version>2.0.4</test-containers.version>
@@ -32,8 +32,8 @@
         <log4j-api.version>2.25.5</log4j-api.version>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
-        <tomcat-embed-core.version>11.0.23</tomcat-embed-core.version>
-        <tomcat-embed-websocket.version>11.0.23</tomcat-embed-websocket.version>
+        <tomcat-embed-core.version>11.0.24</tomcat-embed-core.version>
+        <tomcat-embed-websocket.version>11.0.24</tomcat-embed-websocket.version>
 
         <skip.unit.tests>true</skip.unit.tests>
         <skip.integration.tests>false</skip.integration.tests>
