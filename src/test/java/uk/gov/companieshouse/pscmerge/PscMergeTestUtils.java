@@ -10,7 +10,7 @@ public final class PscMergeTestUtils {
     public static final String PSC_MERGE_ERROR_TOPIC = "psc-merge-psc-search-consumer-error";
     public static final String PSC_MERGE_INVALID_TOPIC = "psc-merge-psc-search-consumer-invalid";
     public static final String PREVIOUS_PSC_ID = "previous_psc_id";
-    public static final String PSC_NOTIFICATIONS_LINK_MERGE = "/psc/previous_psc_id/notifications";
+    public static final String PSC_NOTIFICATIONS_LINK_MERGE = "/persons-with-significant-control/previous_psc_id/notifications";
 
     private PscMergeTestUtils() {}
 

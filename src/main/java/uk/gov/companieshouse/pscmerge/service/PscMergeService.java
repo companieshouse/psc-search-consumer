@@ -17,7 +17,7 @@ import uk.gov.companieshouse.pscmerge.PscMerge;
 public class PscMergeService implements MergeService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("psc-search-consumer");
-    private static final String URI = "/psc/%s/notifications";
+    private static final String URI = "/persons-with-significant-control/%s/notifications";
 
     private final NotificationsApiClient notificationsApiClient;
     private final PrimarySearchApiClient primarySearchApiClient;
