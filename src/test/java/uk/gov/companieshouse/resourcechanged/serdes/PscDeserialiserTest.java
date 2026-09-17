@@ -1,9 +1,9 @@
 package uk.gov.companieshouse.resourcechanged.serdes;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.api.psc.ListSummary;
 import uk.gov.companieshouse.common.exception.PscDeserialisationException;
 
@@ -12,12 +12,12 @@ import static org.mockito.Mockito.*;
 
 class PscDeserialiserTest {
 
-    private ObjectMapper objectMapper;
+    private JsonMapper objectMapper;
     private PscDeserialiser deserialiser;
 
     @BeforeEach
     void setUp() {
-        objectMapper = mock(ObjectMapper.class);
+        objectMapper = mock(JsonMapper.class);
         deserialiser = new PscDeserialiser(objectMapper);
     }
 
@@ -34,7 +34,7 @@ class PscDeserialiserTest {
     @Test
     void deserialiseListSummaryThrowsPscDeserialisationException() throws Exception {
         String json = "xyz";
-        when(objectMapper.readValue(json, ListSummary.class)).thenThrow(new JsonProcessingException("fail"){});
+        when(objectMapper.readValue(json, ListSummary.class)).thenThrow(new StreamReadException("fail"));
 
         PscDeserialisationException ex = assertThrows(PscDeserialisationException.class, () ->
                 deserialiser.deserialiseListSummary(json));
