@@ -22,22 +22,22 @@ class PscDeserialiserTest {
     }
 
     @Test
-    void deserialiseListSummarySuccess() throws Exception {
+    void deserialisePscNotificationSummarySuccess() throws Exception {
         String json = "{\"field\":\"value\"}";
         ListSummary expected = mock(ListSummary.class);
         when(objectMapper.readValue(json, ListSummary.class)).thenReturn(expected);
 
-        ListSummary result = deserialiser.deserialiseListSummary(json);
+        ListSummary result = deserialiser.deserialisePscNotificationSummary(json);
         assertSame(expected, result);
     }
 
     @Test
-    void deserialiseListSummaryThrowsPscDeserialisationException() throws Exception {
+    void deserialisePscNotificationSummaryThrowsPscDeserialisationException() throws Exception {
         String json = "xyz";
         when(objectMapper.readValue(json, ListSummary.class)).thenThrow(new JsonProcessingException("fail"){});
 
         PscDeserialisationException ex = assertThrows(PscDeserialisationException.class, () ->
-                deserialiser.deserialiseListSummary(json));
+                deserialiser.deserialisePscNotificationSummary(json));
         assertTrue(ex.getMessage().contains("PSC Deserialisation failed for data: " + json));
     }
 }
