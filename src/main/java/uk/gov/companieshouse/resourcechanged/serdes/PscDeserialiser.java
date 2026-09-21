@@ -3,7 +3,7 @@ package uk.gov.companieshouse.resourcechanged.serdes;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.api.psc.ListSummary;
+import uk.gov.companieshouse.api.psc_notifications.PscNotificationSummary;
 import uk.gov.companieshouse.common.exception.PscDeserialisationException;
 
 import org.slf4j.Logger;
@@ -20,9 +20,9 @@ public class PscDeserialiser {
         this.objectMapper = objectMapper;
     }
 
-    public ListSummary deserialiseListSummary(String data) {
+    public PscNotificationSummary deserialisePscNotificationSummary(String data) {
         try {
-            return objectMapper.readValue(data, ListSummary.class);
+            return objectMapper.readValue(data, PscNotificationSummary.class);
         } catch (JsonProcessingException e) {
             LOGGER.error("Failed to parse PSC message payload: " + data, e);
             throw new PscDeserialisationException("PSC Deserialisation failed for data: " + data, e);

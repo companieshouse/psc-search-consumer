@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.psc.ListSummary;
+import uk.gov.companieshouse.api.psc_notifications.PscNotificationSummary;
 
 import java.util.Map;
 import java.util.Optional;
@@ -27,26 +28,26 @@ public class PscIdExtractor {
     private static final String PSC_LINKS_KEY_HYPHEN = "persons-with-significant-control";
 
     /**
-     * Extracts the PSC ID from the ListSummary object's links.
+     * Extracts the PSC ID from the PscNotificationSummary object's links.
      *
-     * @param listSummary the ListSummary containing the links with embedded PSC ID
+     * @param pscNotificationSummary the PscNotificationSummary containing the links with embedded PSC ID
      * @return an Optional containing the extracted PSC ID, or empty if extraction failed
      */
-    public Optional<String> extractPscId(ListSummary listSummary) {
-        if (listSummary == null) {
-            LOGGER.warn("ListSummary is null, cannot extract PSC ID");
+    public Optional<String> extractPscId(PscNotificationSummary pscNotificationSummary) {
+        if (pscNotificationSummary == null) {
+            LOGGER.warn("PscNotificationSummary is null, cannot extract PSC ID");
             return Optional.empty();
         }
 
         try {
-            Object links = listSummary.getLinks();
+            Object links = pscNotificationSummary.getLinks();
             String pscId = extractFromLinksObject(links);
             if (pscId != null && !pscId.isEmpty()) {
-                LOGGER.debug("Extracted PSC ID from ListSummary links: {}", pscId);
+                LOGGER.debug("Extracted PSC ID from PscNotificationSummary links: {}", pscId);
                 return Optional.of(pscId);
             }
         } catch (Exception e) {
-            LOGGER.warn("Error extracting PSC ID from ListSummary links", e);
+            LOGGER.warn("Error extracting PSC ID from PscNotificationSummary links", e);
         }
 
         LOGGER.warn("Could not extract PSC ID from notifications link");

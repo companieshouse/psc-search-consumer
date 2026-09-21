@@ -37,15 +37,7 @@ public class PscMergeService implements MergeService {
         notificationsApiClient.getPscNotificationListForDelete(URI.formatted(previousPscId))
                 .ifPresentOrElse(notificationList -> {
                     LOGGER.info("Updating previous notification in index", DataMapHolder.getLogMap());
-                    PscList pscList = new PscList();
-                    pscList.setActiveCount(notificationList.getActiveCount());
-                    pscList.setCeasedCount(notificationList.getCeasedCount());
-                    pscList.setItemsPerPage(notificationList.getItemsPerPage());
-                    pscList.setStartIndex(notificationList.getStartIndex());
-                    pscList.setTotalResults(notificationList.getTotalResults());
-                    pscList.setLinks(notificationList.getLinks());
-                    pscList.setItems(Collections.emptyList());
-                    primarySearchApiClient.upsertPsc(previousPscId, pscList);
+                    primarySearchApiClient.upsertPsc(previousPscId, notificationList);
                 }, () -> {
                    LOGGER.info("Deleting previous psc from index", DataMapHolder.getLogMap());
                    primarySearchApiClient.deletePsc(previousPscId);
