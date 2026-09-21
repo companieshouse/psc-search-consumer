@@ -45,7 +45,7 @@ class PscSearchUpsertServiceTest {
     void shouldProcessMessage() {
         when(resourceChangedData.getData()).thenReturn(DATA);
         when(resourceChangedData.getResourceId()).thenReturn(PSC_ID);
-        when(deserialiser.deserialiseListSummary(anyString())).thenReturn(listSummary);
+        when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(listSummary);
         when(listSummary.getCeased()).thenReturn(false);
         when(listSummary.getLinks()).thenReturn(null);
         when(pscIdExtractor.extractPscId(listSummary)).thenReturn(Optional.of(PSC_ID));
@@ -68,7 +68,7 @@ class PscSearchUpsertServiceTest {
     @Test
     void shouldThrowExceptionWhenDeserialisationFails() {
         when(resourceChangedData.getData()).thenReturn(DATA);
-        when(deserialiser.deserialiseListSummary(anyString())).thenThrow(new PscDeserialisationException("fail", new RuntimeException("bad json")));
+        when(deserialiser.deserialisePscNotificationSummary(anyString())).thenThrow(new PscDeserialisationException("fail", new RuntimeException("bad json")));
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
 
         Executable executable = () -> upsertService.processMessage(params);
@@ -81,7 +81,7 @@ class PscSearchUpsertServiceTest {
     void shouldThrowNonRetryableExceptionWhenPscIdCannotBeExtracted() {
         when(resourceChangedData.getData()).thenReturn(DATA);
         when(resourceChangedData.getResourceId()).thenReturn(PSC_ID);
-        when(deserialiser.deserialiseListSummary(anyString())).thenReturn(listSummary);
+        when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(listSummary);
         when(pscIdExtractor.extractPscId(listSummary)).thenReturn(Optional.empty());
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
 
