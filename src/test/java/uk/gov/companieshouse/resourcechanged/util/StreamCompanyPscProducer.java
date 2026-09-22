@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springfra mework.test.context.TestPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import uk.gov.companieshouse.common.itest.TestKafkaConfig;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 import uk.gov.companieshouse.logging.Logger;
