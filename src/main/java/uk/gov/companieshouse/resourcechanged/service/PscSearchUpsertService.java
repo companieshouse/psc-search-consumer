@@ -46,7 +46,7 @@ public class PscSearchUpsertService implements ResourceChangedService {
         notificationsApiClient.getPscNotificationListForUpsert(pscId)
                 .ifPresentOrElse(notificationList -> primarySearchApiClient.upsertPsc(pscId, notificationList),
                         () -> {
-                            LOGGER.error("PSC notifications unavailable.", DataMapHolder.getLogMap());
+                            LOGGER.error("PSC notifications unavailable. {}", DataMapHolder.getLogMap());
                             throw new NonRetryableException("PSC notifications unavailable");
                         });
     }
