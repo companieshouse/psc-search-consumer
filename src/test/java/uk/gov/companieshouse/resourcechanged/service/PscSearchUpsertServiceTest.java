@@ -11,8 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.ArgumentCaptor;
-import uk.gov.companieshouse.api.psc.ListSummary;
-import uk.gov.companieshouse.api.psc.PscList;
+import uk.gov.companieshouse.api.psc_notifications.NotificationList;
+import uk.gov.companieshouse.api.psc_notifications.PscNotificationSummary;
+import uk.gov.companieshouse.common.client.NotificationsApiClient;
 import uk.gov.companieshouse.common.client.PrimarySearchApiClient;
 import uk.gov.companieshouse.common.exception.NonRetryableException;
 import uk.gov.companieshouse.common.exception.PscDeserialisationException;
@@ -33,11 +34,13 @@ class PscSearchUpsertServiceTest {
     @Mock
     private PrimarySearchApiClient primarySearchApiClient;
     @Mock
-    private ListSummary listSummary;
+    private PscNotificationSummary pscNotificationSummary;
     @Mock
     private ResourceChangedData resourceChangedData;
     @Mock
     private PscIdExtractor pscIdExtractor;
+    @Mock
+    private NotificationsApiClient notificationsApiClient;
     @InjectMocks
     private PscSearchUpsertService upsertService;
 
@@ -45,17 +48,18 @@ class PscSearchUpsertServiceTest {
     void shouldProcessMessage() {
         when(resourceChangedData.getData()).thenReturn(DATA);
         when(resourceChangedData.getResourceId()).thenReturn(PSC_ID);
-        when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(listSummary);
-        when(listSummary.getCeased()).thenReturn(false);
-        when(listSummary.getLinks()).thenReturn(null);
-        when(pscIdExtractor.extractPscId(listSummary)).thenReturn(Optional.of(PSC_ID));
+        when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
+        when(pscNotificationSummary.getLinks()).thenReturn(null);
+        when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(PSC_ID));
+        NotificationList notificationList = mock(NotificationList.class);
+        when(notificationsApiClient.getPscNotificationListForUpsert(PSC_ID)).thenReturn(Optional.of(notificationList));
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
 
         upsertService.processMessage(params);
 
-        ArgumentCaptor<PscList> captor = ArgumentCaptor.forClass(PscList.class);
+        ArgumentCaptor<NotificationList> captor = ArgumentCaptor.forClass(NotificationList.class);
         verify(primarySearchApiClient).upsertPsc(eq(PSC_ID), captor.capture());
-        PscList captured = captor.getValue();
+        NotificationList captured = captor.getValue();
         assertNotNull(captured);
         assertEquals(1, captured.getItems().size());
         assertEquals(1, captured.getItemsPerPage());
@@ -81,8 +85,8 @@ class PscSearchUpsertServiceTest {
     void shouldThrowNonRetryableExceptionWhenPscIdCannotBeExtracted() {
         when(resourceChangedData.getData()).thenReturn(DATA);
         when(resourceChangedData.getResourceId()).thenReturn(PSC_ID);
-        when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(listSummary);
-        when(pscIdExtractor.extractPscId(listSummary)).thenReturn(Optional.empty());
+        when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
+        when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.empty());
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
 
         assertThrows(NonRetryableException.class, () -> upsertService.processMessage(params));
@@ -90,3 +94,5 @@ class PscSearchUpsertServiceTest {
     }
 
 }
+
+

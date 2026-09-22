@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.psc.ListSummary;
+import uk.gov.companieshouse.api.psc_notifications.PscNotificationSummary;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +23,7 @@ class PscIdExtractorTest {
     private static final String NOTIFICATIONS_URL = "/persons-with-significant-control/" + PSC_ID + "/notifications";
 
     @Mock
-    private ListSummary listSummary;
+    private PscNotificationSummary listSummary;
 
     @Test
     void shouldExtractPscIdFromNotificationsUrl() {

@@ -16,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.Message;
-import uk.gov.companieshouse.api.psc.PscList;
 import uk.gov.companieshouse.api.psc_notifications.NotificationList;
 import uk.gov.companieshouse.common.client.NotificationsApiClient;
 import uk.gov.companieshouse.common.client.PrimarySearchApiClient;
@@ -36,8 +35,6 @@ class PscMergeServiceTest {
     @Mock
     private NotificationList notificationList;
     @Mock
-    private PscList pscList;
-
     @InjectMocks
     private PscMergeService pscMergeService;
 
@@ -52,7 +49,7 @@ class PscMergeServiceTest {
 
         //then
         verify(notificationsApiClient).getPscNotificationListForDelete(PSC_NOTIFICATIONS_LINK_MERGE);
-        verify(searchClient).upsertPsc(eq(PREVIOUS_PSC_ID), any(PscList.class));
+        verify(searchClient).upsertPsc(eq(PREVIOUS_PSC_ID), any(NotificationList.class));
     }
 
     @Test
