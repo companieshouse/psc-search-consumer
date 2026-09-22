@@ -49,7 +49,6 @@ class PscSearchUpsertServiceTest {
         when(resourceChangedData.getData()).thenReturn(DATA);
         when(resourceChangedData.getResourceId()).thenReturn(PSC_ID);
         when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
-        when(pscNotificationSummary.getLinks()).thenReturn(null);
         when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(PSC_ID));
         NotificationList notificationList = mock(NotificationList.class);
         when(notificationsApiClient.getPscNotificationListForUpsert(PSC_ID)).thenReturn(Optional.of(notificationList));
@@ -61,12 +60,8 @@ class PscSearchUpsertServiceTest {
         verify(primarySearchApiClient).upsertPsc(eq(PSC_ID), captor.capture());
         NotificationList captured = captor.getValue();
         assertNotNull(captured);
-        assertEquals(1, captured.getItems().size());
-        assertEquals(1, captured.getItemsPerPage());
-        assertEquals(0, captured.getStartIndex());
-        assertEquals(1, captured.getTotalResults());
-        assertEquals(1, captured.getActiveCount());
-        assertEquals(0, captured.getCeasedCount());
+        assertSame(notificationList, captured);
+        verify(notificationsApiClient).getPscNotificationListForUpsert(PSC_ID);
     }
 
     @Test

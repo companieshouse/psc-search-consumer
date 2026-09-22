@@ -3,7 +3,6 @@ package uk.gov.companieshouse.resourcechanged.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.api.psc.ListSummary;
 import uk.gov.companieshouse.api.psc_notifications.PscNotificationSummary;
 
 import java.util.Map;
@@ -12,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Extracts the PSC ID from the embedded links in a ListSummary object.
+ * Extracts the PSC ID from the embedded links in a PscNotificationSummary object.
  * 
  * The PSC ID is found in the notifications URL path:
  * /persons-with-significant-control/{pscId}/notifications
@@ -59,7 +58,7 @@ public class PscIdExtractor {
      * Expects the links object to be a Map containing a nested map under either "persons_with_significant_control" or
      * "persons-with-significant-control", which then has a "notifications" URL where the PSC ID is extracted from
      *
-     * @param linksObject the links object from the deserialized ListSummary
+     * @param linksObject the links object from the deserialized PscNotificationSummary
      * @return the extracted PSC ID, or null if not present or not in expected format
      */
     private String extractFromLinksObject(Object linksObject) {

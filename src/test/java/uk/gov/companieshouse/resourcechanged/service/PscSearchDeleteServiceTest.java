@@ -43,11 +43,9 @@ class PscSearchDeleteServiceTest {
 		ResourceChangedData data = mock(ResourceChangedData.class);
 		PscNotificationSummary pscNotificationSummary = mock(PscNotificationSummary.class);
 
-		when(data.getResourceId()).thenReturn("resource-id");
 		when(data.getResourceUri()).thenReturn(resourceUri);
 		when(data.getData()).thenReturn("some-payload");
 		when(notificationsApiClient.getNotification(resourceUri)).thenReturn(Optional.empty());
-		when(notificationsApiClient.getPscNotificationListForDelete(resourceUri)).thenReturn(Optional.empty());
 		when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
 
 		when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(pscId));
@@ -75,7 +73,6 @@ class PscSearchDeleteServiceTest {
 		when(data.getData()).thenReturn("some-payload");
 		when(data.getResourceUri()).thenReturn(resourceUri);
 		when(notificationsApiClient.getNotification(resourceUri)).thenReturn(Optional.empty());
-		when(notificationsApiClient.getPscNotificationListForDelete(resourceUri)).thenReturn(Optional.empty());
 		when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
 
 		when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.empty());

@@ -34,7 +34,6 @@ class PscMergeServiceTest {
     private NotificationsApiClient notificationsApiClient;
     @Mock
     private NotificationList notificationList;
-    @Mock
     @InjectMocks
     private PscMergeService pscMergeService;
 

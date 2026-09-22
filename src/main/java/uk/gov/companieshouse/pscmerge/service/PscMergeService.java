@@ -1,11 +1,8 @@
 package uk.gov.companieshouse.pscmerge.service;
 
-import java.util.Collections;
-
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
-import uk.gov.companieshouse.api.psc.PscList;
 import uk.gov.companieshouse.common.client.NotificationsApiClient;
 import uk.gov.companieshouse.common.client.PrimarySearchApiClient;
 import uk.gov.companieshouse.common.logging.DataMapHolder;
