@@ -6,7 +6,7 @@ import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.reflect.ReflectDatumWriter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
+import org.springframework.core.io.ClassPathResource;
 import uk.gov.companieshouse.stream.EventRecord;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
@@ -36,8 +36,8 @@ public final class TestUtils {
                     .setResourceKind("company-psc-individual")
                     .setResourceUri("/company/15130809/persons-with-significant-control/individual/ZJmpdoPuMzX35ogDAr98dHmOdaQ")
                     .setResourceId("ZJmpdoPuMzX35ogDAr98dHmOdaQ")
-                    .setData(IOUtils.resourceToString("/json/resource-changed-data.json",
-                            StandardCharsets.UTF_8))
+                        .setData(new String(new ClassPathResource("json/resource-changed-data.json")
+                            .getInputStream().readAllBytes(), StandardCharsets.UTF_8))
                     .setEvent(getEvent("deleted"))
                     .setContextId("22-usZuMZEnZY6W_Kip1539964678")
                     .build();
