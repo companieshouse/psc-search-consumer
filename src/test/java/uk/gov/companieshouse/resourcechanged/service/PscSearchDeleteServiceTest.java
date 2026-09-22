@@ -8,6 +8,7 @@ import uk.gov.companieshouse.api.psc_notifications.PscNotificationSummary;
 import uk.gov.companieshouse.common.client.NotificationsApiClient;
 import uk.gov.companieshouse.common.client.PrimarySearchApiClient;
 import uk.gov.companieshouse.common.exception.NonRetryableException;
+import uk.gov.companieshouse.common.exception.RetryableException;
 import uk.gov.companieshouse.resourcechanged.serdes.PscDeserialiser;
 import uk.gov.companieshouse.resourcechanged.util.PscIdExtractor;
 import uk.gov.companieshouse.stream.ResourceChangedData;
@@ -60,6 +61,25 @@ class PscSearchDeleteServiceTest {
 		verify(apiClient).deletePsc(pscId);
 	}
 
+
+	@Test
+	void shouldThrowRetryableExceptionWhenNotificationIsPresent() {
+		// given
+		PscSearchDeleteService service = new PscSearchDeleteService(apiClient, pscIdExtractor, deserialiser, notificationsApiClient);
+		String resourceUri = "/persons-with-significant-control/abc/notifications";
+
+		ResourceChangedData data = mock(ResourceChangedData.class);
+		PscNotificationSummary notificationSummary = mock(PscNotificationSummary.class);
+
+		when(data.getResourceUri()).thenReturn(resourceUri);
+		when(notificationsApiClient.getNotification(resourceUri)).thenReturn(Optional.of(notificationSummary));
+
+		ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(data);
+
+		// then - RetryableException is thrown and processing stops
+		assertThrows(RetryableException.class, () -> service.processMessage(params));
+		verify(apiClient, never()).deletePsc(anyString());
+	}
 
 	@Test
 	void shouldThrowNonRetryableExceptionWhenPscIdCannotBeExtracted() {
