@@ -3,6 +3,7 @@ package uk.gov.companieshouse.pscmerge.service;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.common.TestUtils.CONTEXT_ID;
@@ -49,6 +50,24 @@ class PscMergeServiceTest {
         //then
         verify(notificationsApiClient).getPscNotificationListForDelete(PSC_NOTIFICATIONS_LINK_MERGE);
         verify(searchClient).upsertPsc(eq(PREVIOUS_PSC_ID), any(NotificationList.class));
+        verify(searchClient, never()).deletePsc(anyString());
+    }
+
+    @Test
+    void shouldUpsertPreviousPscWhenOneNotificationRemainsForPreviousPscId() {
+        //given
+        when(pscMergeMessage.getPayload()).thenReturn(PSC_MERGE_MESSAGE_PAYLOAD);
+        NotificationList oneRemainingNotification = notificationList;
+        when(notificationsApiClient.getPscNotificationListForDelete(anyString()))
+                .thenReturn(Optional.of(oneRemainingNotification));
+
+        //when
+        pscMergeService.processMessage(pscMergeMessage);
+
+        //then
+        verify(notificationsApiClient).getPscNotificationListForDelete(PSC_NOTIFICATIONS_LINK_MERGE);
+        verify(searchClient).upsertPsc(PREVIOUS_PSC_ID, oneRemainingNotification);
+        verify(searchClient, never()).deletePsc(anyString());
     }
 
     @Test
