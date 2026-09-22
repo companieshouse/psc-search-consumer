@@ -88,6 +88,21 @@ class PscSearchUpsertServiceTest {
         verifyNoInteractions(primarySearchApiClient);
     }
 
+    @Test
+    void shouldThrowNonRetryableExceptionWhenNotificationsUnavailable() {
+        when(resourceChangedData.getData()).thenReturn(DATA);
+        when(resourceChangedData.getResourceId()).thenReturn(PSC_ID);
+        when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
+        when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(PSC_ID));
+        when(notificationsApiClient.getPscNotificationListForUpsert(PSC_ID)).thenReturn(Optional.empty());
+        ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
+
+        NonRetryableException exception = assertThrows(NonRetryableException.class,
+                () -> upsertService.processMessage(params));
+        assertEquals("PSC notifications unavailable", exception.getMessage());
+        verify(primarySearchApiClient, never()).upsertPsc(anyString(), any());
+    }
+
 }
 
 
