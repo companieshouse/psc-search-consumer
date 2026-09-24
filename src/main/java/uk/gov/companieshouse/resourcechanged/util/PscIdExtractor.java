@@ -3,7 +3,7 @@ package uk.gov.companieshouse.resourcechanged.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.api.psc.ListSummary;
+import uk.gov.companieshouse.api.psc_notifications.PscNotificationSummary;
 
 import java.util.Map;
 import java.util.Optional;
@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Extracts the PSC ID from the embedded links in a ListSummary object.
+ * Extracts the PSC ID from the embedded links in a PscNotificationSummary object.
  * 
  * The PSC ID is found in the notifications URL path:
  * /persons-with-significant-control/{pscId}/notifications
@@ -27,26 +27,26 @@ public class PscIdExtractor {
     private static final String PSC_LINKS_KEY_HYPHEN = "persons-with-significant-control";
 
     /**
-     * Extracts the PSC ID from the ListSummary object's links.
+     * Extracts the PSC ID from the PscNotificationSummary object's links.
      *
-     * @param listSummary the ListSummary containing the links with embedded PSC ID
+     * @param pscNotificationSummary the PscNotificationSummary containing the links with embedded PSC ID
      * @return an Optional containing the extracted PSC ID, or empty if extraction failed
      */
-    public Optional<String> extractPscId(ListSummary listSummary) {
-        if (listSummary == null) {
-            LOGGER.warn("ListSummary is null, cannot extract PSC ID");
+    public Optional<String> extractPscId(PscNotificationSummary pscNotificationSummary) {
+        if (pscNotificationSummary == null) {
+            LOGGER.warn("PscNotificationSummary is null, cannot extract PSC ID");
             return Optional.empty();
         }
 
         try {
-            Object links = listSummary.getLinks();
+            Object links = pscNotificationSummary.getLinks();
             String pscId = extractFromLinksObject(links);
             if (pscId != null && !pscId.isEmpty()) {
-                LOGGER.debug("Extracted PSC ID from ListSummary links: {}", pscId);
+                LOGGER.debug("Extracted PSC ID from PscNotificationSummary links: {}", pscId);
                 return Optional.of(pscId);
             }
         } catch (Exception e) {
-            LOGGER.warn("Error extracting PSC ID from ListSummary links", e);
+            LOGGER.warn("Error extracting PSC ID from PscNotificationSummary links", e);
         }
 
         LOGGER.warn("Could not extract PSC ID from notifications link");
@@ -58,7 +58,7 @@ public class PscIdExtractor {
      * Expects the links object to be a Map containing a nested map under either "persons_with_significant_control" or
      * "persons-with-significant-control", which then has a "notifications" URL where the PSC ID is extracted from
      *
-     * @param linksObject the links object from the deserialized ListSummary
+     * @param linksObject the links object from the deserialized PscNotificationSummary
      * @return the extracted PSC ID, or null if not present or not in expected format
      */
     private String extractFromLinksObject(Object linksObject) {

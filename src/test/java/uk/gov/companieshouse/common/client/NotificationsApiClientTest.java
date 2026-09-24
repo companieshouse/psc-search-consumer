@@ -41,7 +41,7 @@ class NotificationsApiClientTest {
     private static final String COMPANY_NOTIFICATION_LINK = "/company/12345678/notifications/987ihg654fed321cba";
     private static final String GET_NOTIFICATION_CALL = "Notifications API GET Notification";
     private static final String GET_PSC_NOTIFICATIONS_CALL = "Notifications API GET Psc Notifications";
-    private static final String PSC_NOTIFICATIONS_LINK = "/psc/abc123def456ghi789/notifications";
+    private static final String PSC_NOTIFICATIONS_LINK = "/persons-with-significant-control/abc123def456ghi789/notifications";
 
     @Mock
     private Supplier<InternalApiClient> clientSupplier;

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
-import uk.gov.companieshouse.api.psc.PscList;
+import uk.gov.companieshouse.api.psc_notifications.NotificationList;
 import uk.gov.companieshouse.common.logging.DataMapHolder;
 
 @Component
@@ -37,14 +37,14 @@ public class PrimarySearchApiClient {
         }
     }
 
-    public void upsertPsc(String pscId, PscList pscList) {
+    public void upsertPsc(String pscId, NotificationList notificationList) {
         String resourceUri = "/persons-with-significant-control-search/persons-with-significant-control/%s".formatted(pscId); 
         InternalApiClient apiClient = apiClientService.getInternalApiClient();
         apiClient.getHttpClient().setRequestId(DataMapHolder.getRequestId());
         try {
             apiClient.privateSearchResourceHandler()
                     .pscSearch()
-                    .put(resourceUri, pscList)
+                    .put(resourceUri, notificationList)
                     .execute();
         } catch (ApiErrorResponseException ex) {
             responseHandler.handle(UPSERT_PSC_API_CALL, resourceUri, ex);

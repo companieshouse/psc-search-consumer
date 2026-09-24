@@ -3,6 +3,7 @@ package uk.gov.companieshouse.pscmerge.service;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.common.TestUtils.CONTEXT_ID;
@@ -16,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.Message;
-import uk.gov.companieshouse.api.psc.PscList;
 import uk.gov.companieshouse.api.psc_notifications.NotificationList;
 import uk.gov.companieshouse.common.client.NotificationsApiClient;
 import uk.gov.companieshouse.common.client.PrimarySearchApiClient;
@@ -35,9 +35,6 @@ class PscMergeServiceTest {
     private NotificationsApiClient notificationsApiClient;
     @Mock
     private NotificationList notificationList;
-    @Mock
-    private PscList pscList;
-
     @InjectMocks
     private PscMergeService pscMergeService;
 
@@ -52,7 +49,25 @@ class PscMergeServiceTest {
 
         //then
         verify(notificationsApiClient).getPscNotificationListForDelete(PSC_NOTIFICATIONS_LINK_MERGE);
-        verify(searchClient).upsertPsc(eq(PREVIOUS_PSC_ID), any(PscList.class));
+        verify(searchClient).upsertPsc(eq(PREVIOUS_PSC_ID), any(NotificationList.class));
+        verify(searchClient, never()).deletePsc(anyString());
+    }
+
+    @Test
+    void shouldUpsertPreviousPscWhenOneNotificationRemainsForPreviousPscId() {
+        //given
+        when(pscMergeMessage.getPayload()).thenReturn(PSC_MERGE_MESSAGE_PAYLOAD);
+        NotificationList oneRemainingNotification = notificationList;
+        when(notificationsApiClient.getPscNotificationListForDelete(anyString()))
+                .thenReturn(Optional.of(oneRemainingNotification));
+
+        //when
+        pscMergeService.processMessage(pscMergeMessage);
+
+        //then
+        verify(notificationsApiClient).getPscNotificationListForDelete(PSC_NOTIFICATIONS_LINK_MERGE);
+        verify(searchClient).upsertPsc(PREVIOUS_PSC_ID, oneRemainingNotification);
+        verify(searchClient, never()).deletePsc(anyString());
     }
 
     @Test

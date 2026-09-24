@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
-import uk.gov.companieshouse.api.psc.PscList;
+import uk.gov.companieshouse.api.psc_notifications.NotificationList;
 
 import static uk.gov.companieshouse.common.TestUtils.DELETE_PSC_API_CALL;
 
@@ -78,7 +78,7 @@ class PrimarySearchApiClientTest {
 
     @Test
     void upsertPscSuccessfulPut() throws Exception {
-        PscList pscList = mock(PscList.class);
+        NotificationList pscList = mock(NotificationList.class);
         
         when(apiClient.privateSearchResourceHandler().pscSearch().put(RESOURCE_URI, pscList).execute()).thenReturn(null);
         org.mockito.Mockito.clearInvocations(apiClient.privateSearchResourceHandler().pscSearch());
@@ -92,7 +92,7 @@ class PrimarySearchApiClientTest {
 
     @Test
     void upsertPscApiErrorResponseCallsResponseHandler() throws Exception {
-        PscList pscList = mock(PscList.class);
+        NotificationList pscList = mock(NotificationList.class);
         ApiErrorResponseException apiError = mock(ApiErrorResponseException.class);
 
         when(apiClient.privateSearchResourceHandler().pscSearch().put(RESOURCE_URI, pscList).execute()).thenThrow(apiError);
@@ -104,7 +104,7 @@ class PrimarySearchApiClientTest {
 
     @Test
     void upsertUriValidationExceptionCallsResponseHandler() throws Exception {
-        PscList pscList = mock(PscList.class);
+        NotificationList pscList = mock(NotificationList.class);
         URIValidationException uriEx = mock(URIValidationException.class);
 
         when(apiClient.privateSearchResourceHandler().pscSearch().put(RESOURCE_URI, pscList).execute()).thenThrow(uriEx);
