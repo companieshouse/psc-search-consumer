@@ -27,6 +27,7 @@ import java.util.Optional;
 class PscSearchUpsertServiceTest {
 
     private static final String PSC_ID = "123";
+    private static final String PSC_NOTIFICATIONS_URI = "/persons-with-significant-control/%s/notifications";
     private static final String DATA = "{\"some\":\"json\"}";
 
     @Mock
@@ -51,7 +52,7 @@ class PscSearchUpsertServiceTest {
         when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
         when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(PSC_ID));
         NotificationList notificationList = mock(NotificationList.class);
-        when(notificationsApiClient.getPscNotificationListForUpsert(PSC_ID)).thenReturn(Optional.of(notificationList));
+        when(notificationsApiClient.getPscNotificationListForUpsert(PSC_NOTIFICATIONS_URI.formatted(PSC_ID))).thenReturn(Optional.of(notificationList));
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
 
         upsertService.processMessage(params);
@@ -61,7 +62,7 @@ class PscSearchUpsertServiceTest {
         NotificationList captured = captor.getValue();
         assertNotNull(captured);
         assertSame(notificationList, captured);
-        verify(notificationsApiClient).getPscNotificationListForUpsert(PSC_ID);
+        verify(notificationsApiClient).getPscNotificationListForUpsert(PSC_NOTIFICATIONS_URI.formatted(PSC_ID));
     }
 
     @Test
@@ -94,7 +95,7 @@ class PscSearchUpsertServiceTest {
         when(resourceChangedData.getResourceId()).thenReturn(PSC_ID);
         when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
         when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(PSC_ID));
-        when(notificationsApiClient.getPscNotificationListForUpsert(PSC_ID)).thenReturn(Optional.empty());
+        when(notificationsApiClient.getPscNotificationListForUpsert(PSC_NOTIFICATIONS_URI.formatted(PSC_ID))).thenReturn(Optional.empty());
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
 
         NonRetryableException exception = assertThrows(NonRetryableException.class,
