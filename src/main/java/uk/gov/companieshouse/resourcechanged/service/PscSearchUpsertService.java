@@ -16,6 +16,7 @@ import uk.gov.companieshouse.common.client.PrimarySearchApiClient;
 public class PscSearchUpsertService implements ResourceChangedService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PscSearchUpsertService.class);
+    private static final String PSC_NOTIFICATIONS_URI = "/persons-with-significant-control/%s/notifications";
     private final PscDeserialiser deserialiser;
     private final PrimarySearchApiClient primarySearchApiClient;
     private final PscIdExtractor pscIdExtractor;
@@ -43,7 +44,7 @@ public class PscSearchUpsertService implements ResourceChangedService {
                 });
 
         DataMapHolder.get().pscId(pscId);
-        notificationsApiClient.getPscNotificationListForUpsert(pscId)
+        notificationsApiClient.getPscNotificationListForUpsert(PSC_NOTIFICATIONS_URI.formatted(pscId))
                 .ifPresentOrElse(notificationList -> primarySearchApiClient.upsertPsc(pscId, notificationList),
                         () -> {
                             LOGGER.error("PSC notifications unavailable. {}", DataMapHolder.getLogMap());
