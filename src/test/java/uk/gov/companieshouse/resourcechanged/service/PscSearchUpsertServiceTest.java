@@ -5,6 +5,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
@@ -27,9 +29,7 @@ import java.util.Optional;
 class PscSearchUpsertServiceTest {
 
     private static final String DESTINATION_PSC_ID = "psc-a";
-    private static final String PREVIOUS_PSC_ID = "psc-b";
     private static final String APPOINTMENT_2 = "appointment-2";
-    private static final String APPOINTMENT_3 = "appointment-3";
     private static final String PSC_NOTIFICATIONS_URI = "/persons-with-significant-control/%s/notifications";
 
     @Mock
@@ -65,46 +65,30 @@ class PscSearchUpsertServiceTest {
         verify(notificationsApiClient).getPscNotificationListForUpsert(PSC_NOTIFICATIONS_URI.formatted(DESTINATION_PSC_ID));
     }
 
-    @Test
-    void shouldUpsertDestinationPscWhenOnlyAppointmentIsMerged() {
+    @ParameterizedTest(name = "{0}")
+    @CsvSource({
+            "only appointment merged, appointment-2, psc-b",
+            "first appointment merged, appointment-2, psc-b",
+            "remaining appointment merged, appointment-3, psc-b",
+            "previously merged appointment updated, appointment-2, psc-a"
+    })
+    void shouldUpsertDestinationPscForMergeScenario(String scenario, String appointmentId,
+                                                     String previousPscId) {
         NotificationList destinationNotifications = mock(NotificationList.class);
 
-        processChangedAppointment(APPOINTMENT_2, DESTINATION_PSC_ID, destinationNotifications);
+        processChangedAppointment(appointmentId, DESTINATION_PSC_ID, previousPscId, destinationNotifications);
 
-        verifyDestinationPscWasUpserted(destinationNotifications);
+        ArgumentCaptor<NotificationList> captor = ArgumentCaptor.forClass(NotificationList.class);
+        verify(primarySearchApiClient).upsertPsc(eq(DESTINATION_PSC_ID), captor.capture());
+        assertSame(destinationNotifications, captor.getValue());
+        verify(notificationsApiClient).getPscNotificationListForUpsert(
+            PSC_NOTIFICATIONS_URI.formatted(DESTINATION_PSC_ID));
     }
 
-    @Test
-    void shouldUpsertDestinationPscWhenFirstAppointmentIsMerged() {
-        NotificationList destinationNotifications = mock(NotificationList.class);
-
-        processChangedAppointment(APPOINTMENT_2, DESTINATION_PSC_ID, destinationNotifications);
-
-        verifyDestinationPscWasUpserted(destinationNotifications);
-    }
-
-    @Test
-    void shouldUpsertDestinationPscWhenRemainingAppointmentIsMerged() {
-        NotificationList destinationNotifications = mock(NotificationList.class);
-
-        processChangedAppointment(APPOINTMENT_3, DESTINATION_PSC_ID, destinationNotifications);
-
-        verifyDestinationPscWasUpserted(destinationNotifications);
-    }
-
-    @Test
-    void shouldUpsertDestinationPscWhenPreviouslyMergedAppointmentIsUpdated() {
-        NotificationList destinationNotifications = mock(NotificationList.class);
-
-        processChangedAppointment(APPOINTMENT_2, DESTINATION_PSC_ID, destinationNotifications);
-
-        verifyDestinationPscWasUpserted(destinationNotifications);
-    }
-
-    private void processChangedAppointment(String appointmentId, String destinationPscId,
+    private void processChangedAppointment(String appointmentId, String destinationPscId, String previousPscId,
                                            NotificationList destinationNotifications) {
         String data = "{\"appointment_id\":\"%s\",\"psc_id\":\"%s\",\"previous_psc_id\":\"%s\"}"
-                .formatted(appointmentId, destinationPscId, PREVIOUS_PSC_ID);
+                .formatted(appointmentId, destinationPscId, previousPscId);
         when(resourceChangedData.getData()).thenReturn(data);
         when(resourceChangedData.getResourceId()).thenReturn(appointmentId);
         when(deserialiser.deserialisePscNotificationSummary(data)).thenReturn(pscNotificationSummary);
@@ -113,13 +97,6 @@ class PscSearchUpsertServiceTest {
                 .thenReturn(Optional.of(destinationNotifications));
 
         upsertService.processMessage(new ResourceChangedServiceParameters(resourceChangedData));
-    }
-
-    private void verifyDestinationPscWasUpserted(NotificationList destinationNotifications) {
-        ArgumentCaptor<NotificationList> captor = ArgumentCaptor.forClass(NotificationList.class);
-        verify(primarySearchApiClient).upsertPsc(eq(DESTINATION_PSC_ID), captor.capture());
-        assertSame(destinationNotifications, captor.getValue());
-        verify(notificationsApiClient).getPscNotificationListForUpsert(PSC_NOTIFICATIONS_URI.formatted(DESTINATION_PSC_ID));
     }
 
     @Test
