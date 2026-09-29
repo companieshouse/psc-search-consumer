@@ -28,6 +28,10 @@ import static uk.gov.companieshouse.common.TestUtils.ERROR_TOPIC;
 import static uk.gov.companieshouse.common.TestUtils.INVALID_TOPIC;
 import static uk.gov.companieshouse.common.TestUtils.MAIN_TOPIC;
 import static uk.gov.companieshouse.common.TestUtils.RETRY_TOPIC;
+import static uk.gov.companieshouse.common.TestUtils.STREAM_TOPIC;
+import static uk.gov.companieshouse.common.TestUtils.STREAM_ERROR_TOPIC;
+import static uk.gov.companieshouse.common.TestUtils.STREAM_INVALID_TOPIC;
+import static uk.gov.companieshouse.common.TestUtils.STREAM_RETRY_TOPIC;
 
 @TestConfiguration
 public class TestKafkaConfig {
@@ -44,8 +48,8 @@ public class TestKafkaConfig {
                         ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false",
                         ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString()),
                 new StringDeserializer(), new AvroDeserializer<>(ResourceChangedData.class));
-        kafkaConsumer.subscribe(List.of(MAIN_TOPIC, ERROR_TOPIC, RETRY_TOPIC,
-                INVALID_TOPIC));
+        kafkaConsumer.subscribe(List.of(MAIN_TOPIC, STREAM_TOPIC, ERROR_TOPIC, RETRY_TOPIC, INVALID_TOPIC,
+            STREAM_ERROR_TOPIC, STREAM_RETRY_TOPIC, STREAM_INVALID_TOPIC));
         return kafkaConsumer;
     }
 
