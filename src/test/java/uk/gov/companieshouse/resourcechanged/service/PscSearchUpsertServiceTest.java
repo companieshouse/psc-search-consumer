@@ -26,8 +26,10 @@ import java.util.Optional;
 @ExtendWith(MockitoExtension.class)
 class PscSearchUpsertServiceTest {
 
-    private static final String PSC_ID = "123";
-    private static final String DATA = "{\"some\":\"json\"}";
+    private static final String DESTINATION_PSC_ID = "psc-a";
+    private static final String PREVIOUS_PSC_ID = "psc-b";
+    private static final String APPOINTMENT_2 = "appointment-2";
+    private static final String APPOINTMENT_3 = "appointment-3";
 
     @Mock
     private PscDeserialiser deserialiser;
@@ -46,27 +48,82 @@ class PscSearchUpsertServiceTest {
 
     @Test
     void shouldProcessMessage() {
-        when(resourceChangedData.getData()).thenReturn(DATA);
-        when(resourceChangedData.getResourceId()).thenReturn(PSC_ID);
+        when(resourceChangedData.getData()).thenReturn("{\"some\":\"json\"}");
+        when(resourceChangedData.getResourceId()).thenReturn(DESTINATION_PSC_ID);
         when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
-        when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(PSC_ID));
+        when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(DESTINATION_PSC_ID));
         NotificationList notificationList = mock(NotificationList.class);
-        when(notificationsApiClient.getPscNotificationListForUpsert(PSC_ID)).thenReturn(Optional.of(notificationList));
-        ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
+        when(notificationsApiClient.getPscNotificationListForUpsert(DESTINATION_PSC_ID))
+                .thenReturn(Optional.of(notificationList));
 
-        upsertService.processMessage(params);
+        upsertService.processMessage(new ResourceChangedServiceParameters(resourceChangedData));
 
         ArgumentCaptor<NotificationList> captor = ArgumentCaptor.forClass(NotificationList.class);
-        verify(primarySearchApiClient).upsertPsc(eq(PSC_ID), captor.capture());
-        NotificationList captured = captor.getValue();
-        assertNotNull(captured);
-        assertSame(notificationList, captured);
-        verify(notificationsApiClient).getPscNotificationListForUpsert(PSC_ID);
+        verify(primarySearchApiClient).upsertPsc(eq(DESTINATION_PSC_ID), captor.capture());
+        assertSame(notificationList, captor.getValue());
+        verify(notificationsApiClient).getPscNotificationListForUpsert(DESTINATION_PSC_ID);
+    }
+
+    @Test
+    void shouldUpsertDestinationPscWhenOnlyAppointmentIsMerged() {
+        NotificationList destinationNotifications = mock(NotificationList.class);
+
+        processChangedAppointment(APPOINTMENT_2, DESTINATION_PSC_ID, destinationNotifications);
+
+        verifyDestinationPscWasUpserted(destinationNotifications);
+    }
+
+    @Test
+    void shouldUpsertDestinationPscWhenFirstAppointmentIsMerged() {
+        NotificationList destinationNotifications = mock(NotificationList.class);
+
+        processChangedAppointment(APPOINTMENT_2, DESTINATION_PSC_ID, destinationNotifications);
+
+        verifyDestinationPscWasUpserted(destinationNotifications);
+    }
+
+    @Test
+    void shouldUpsertDestinationPscWhenRemainingAppointmentIsMerged() {
+        NotificationList destinationNotifications = mock(NotificationList.class);
+
+        processChangedAppointment(APPOINTMENT_3, DESTINATION_PSC_ID, destinationNotifications);
+
+        verifyDestinationPscWasUpserted(destinationNotifications);
+    }
+
+    @Test
+    void shouldUpsertDestinationPscWhenPreviouslyMergedAppointmentIsUpdated() {
+        NotificationList destinationNotifications = mock(NotificationList.class);
+
+        processChangedAppointment(APPOINTMENT_2, DESTINATION_PSC_ID, destinationNotifications);
+
+        verifyDestinationPscWasUpserted(destinationNotifications);
+    }
+
+    private void processChangedAppointment(String appointmentId, String destinationPscId,
+                                           NotificationList destinationNotifications) {
+        String data = "{\"appointment_id\":\"%s\",\"psc_id\":\"%s\",\"previous_psc_id\":\"%s\"}"
+                .formatted(appointmentId, destinationPscId, PREVIOUS_PSC_ID);
+        when(resourceChangedData.getData()).thenReturn(data);
+        when(resourceChangedData.getResourceId()).thenReturn(appointmentId);
+        when(deserialiser.deserialisePscNotificationSummary(data)).thenReturn(pscNotificationSummary);
+        when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(destinationPscId));
+        when(notificationsApiClient.getPscNotificationListForUpsert(destinationPscId))
+                .thenReturn(Optional.of(destinationNotifications));
+
+        upsertService.processMessage(new ResourceChangedServiceParameters(resourceChangedData));
+    }
+
+    private void verifyDestinationPscWasUpserted(NotificationList destinationNotifications) {
+        ArgumentCaptor<NotificationList> captor = ArgumentCaptor.forClass(NotificationList.class);
+        verify(primarySearchApiClient).upsertPsc(eq(DESTINATION_PSC_ID), captor.capture());
+        assertSame(destinationNotifications, captor.getValue());
+        verify(notificationsApiClient).getPscNotificationListForUpsert(DESTINATION_PSC_ID);
     }
 
     @Test
     void shouldThrowExceptionWhenDeserialisationFails() {
-        when(resourceChangedData.getData()).thenReturn(DATA);
+        when(resourceChangedData.getData()).thenReturn("invalid-data");
         when(deserialiser.deserialisePscNotificationSummary(anyString())).thenThrow(new PscDeserialisationException("fail", new RuntimeException("bad json")));
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
 
@@ -78,8 +135,8 @@ class PscSearchUpsertServiceTest {
 
     @Test
     void shouldThrowNonRetryableExceptionWhenPscIdCannotBeExtracted() {
-        when(resourceChangedData.getData()).thenReturn(DATA);
-        when(resourceChangedData.getResourceId()).thenReturn(PSC_ID);
+        when(resourceChangedData.getData()).thenReturn("appointment-data");
+        when(resourceChangedData.getResourceId()).thenReturn(APPOINTMENT_2);
         when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
         when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.empty());
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
@@ -90,11 +147,11 @@ class PscSearchUpsertServiceTest {
 
     @Test
     void shouldThrowNonRetryableExceptionWhenNotificationsUnavailable() {
-        when(resourceChangedData.getData()).thenReturn(DATA);
-        when(resourceChangedData.getResourceId()).thenReturn(PSC_ID);
+        when(resourceChangedData.getData()).thenReturn("appointment-data");
+        when(resourceChangedData.getResourceId()).thenReturn(APPOINTMENT_2);
         when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
-        when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(PSC_ID));
-        when(notificationsApiClient.getPscNotificationListForUpsert(PSC_ID)).thenReturn(Optional.empty());
+        when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(DESTINATION_PSC_ID));
+        when(notificationsApiClient.getPscNotificationListForUpsert(DESTINATION_PSC_ID)).thenReturn(Optional.empty());
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
 
         NonRetryableException exception = assertThrows(NonRetryableException.class,

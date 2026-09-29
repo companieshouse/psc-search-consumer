@@ -19,6 +19,10 @@ import static java.util.Collections.emptyList;
 public final class TestUtils {
 
     public static final String MAIN_TOPIC = "echo";
+    public static final String STREAM_TOPIC = "stream-company-psc";
+    public static final String STREAM_RETRY_TOPIC = "stream-company-psc-echo-consumer-retry";
+    public static final String STREAM_ERROR_TOPIC = "stream-company-psc-echo-consumer-error";
+    public static final String STREAM_INVALID_TOPIC = "stream-company-psc-echo-consumer-invalid";
     public static final String RETRY_TOPIC = "echo-echo-consumer-retry";
     public static final String ERROR_TOPIC = "echo-echo-consumer-error";
     public static final String INVALID_TOPIC = "echo-echo-consumer-invalid";

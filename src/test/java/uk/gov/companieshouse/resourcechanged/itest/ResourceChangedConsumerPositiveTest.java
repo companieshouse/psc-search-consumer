@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.verify;
 import static uk.gov.companieshouse.common.TestUtils.RESOURCE_CHANGED_DATA;
-import static uk.gov.companieshouse.common.TestUtils.ERROR_TOPIC;
-import static uk.gov.companieshouse.common.TestUtils.INVALID_TOPIC;
-import static uk.gov.companieshouse.common.TestUtils.MAIN_TOPIC;
-import static uk.gov.companieshouse.common.TestUtils.RETRY_TOPIC;
+import static uk.gov.companieshouse.common.TestUtils.STREAM_TOPIC;
+import static uk.gov.companieshouse.common.TestUtils.STREAM_RETRY_TOPIC;
+import static uk.gov.companieshouse.common.TestUtils.STREAM_ERROR_TOPIC;
+import static uk.gov.companieshouse.common.TestUtils.STREAM_INVALID_TOPIC;
 
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -20,14 +20,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.context.ActiveProfiles;
 import java.time.Duration;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.common.TestUtils;
 import uk.gov.companieshouse.common.itest.AbstractKafkaIntegrationTest;
 import uk.gov.companieshouse.resourcechanged.service.PscSearchUpdaterServiceRouter;
-import uk.gov.companieshouse.resourcechanged.service.ResourceChangedService;
 import uk.gov.companieshouse.resourcechanged.service.ResourceChangedServiceParameters;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
@@ -51,7 +49,7 @@ class ResourceChangedConsumerPositiveTest extends AbstractKafkaIntegrationTest {
     @Test
     void testConsumeFromMainTopic() throws Exception {
 
-        testProducer.send(new ProducerRecord<>(MAIN_TOPIC, 0, System.currentTimeMillis(), "key",
+        testProducer.send(new ProducerRecord<>(STREAM_TOPIC, 0, System.currentTimeMillis(), "key",
                 RESOURCE_CHANGED_DATA));
         if (!consumerAspect.getLatch().await(5L, TimeUnit.SECONDS)) {
             fail("Timed out waiting for latch");
@@ -59,10 +57,10 @@ class ResourceChangedConsumerPositiveTest extends AbstractKafkaIntegrationTest {
         ConsumerRecords<?, ?> consumerRecords = KafkaTestUtils.getRecords(testConsumer, Duration.ofSeconds(10), 1);
 
         //then
-        assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, MAIN_TOPIC)).isEqualTo(1);
-        assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, RETRY_TOPIC)).isZero();
-        assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, ERROR_TOPIC)).isZero();
-        assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, INVALID_TOPIC)).isZero();
+        assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, STREAM_TOPIC)).isEqualTo(1);
+        assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, STREAM_RETRY_TOPIC)).isZero();
+        assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, STREAM_ERROR_TOPIC)).isZero();
+        assertThat(TestUtils.noOfRecordsForTopic(consumerRecords, STREAM_INVALID_TOPIC)).isZero();
         verify(router).route(new ResourceChangedServiceParameters(RESOURCE_CHANGED_DATA));
     }
 }
