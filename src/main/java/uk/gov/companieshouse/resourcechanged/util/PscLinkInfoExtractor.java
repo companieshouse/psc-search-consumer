@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Extracts the PSC ID from the embedded links in a PscNotificationSummary object.
+ * Extracts the PSC ID and 'notifications' URI from the embedded links in a PscNotificationSummary object.
  * 
  * The PSC ID is found in the notifications URL path:
  * /persons-with-significant-control/{pscId}/notifications
@@ -27,10 +27,11 @@ public class PscLinkInfoExtractor {
     private static final String PSC_LINKS_KEY_HYPHEN = "persons-with-significant-control";
 
     /**
-     * Extracts the PSC ID from the PscNotificationSummary object's links.
+     * Extracts the PSC ID and notification URI from the PscNotificationSummary object's links.
      *
      * @param pscNotificationSummary the PscNotificationSummary containing the links with embedded PSC ID
-     * @return an Optional containing the extracted PSC ID, or empty if extraction failed
+     * @return an Optional containing a NotificationLinksInfo object with the extracted PSC ID and notifications URI,
+     * or empty if extraction failed
      */
     public Optional<NotificationsLinkInfo> extractNotificationsLinkInfo(PscNotificationSummary pscNotificationSummary) {
         if (pscNotificationSummary == null) {
@@ -54,12 +55,13 @@ public class PscLinkInfoExtractor {
     }
 
     /**
-     * Extracts the PSC ID from a links object deserialized from the Kafka message payload.
+     * Extracts the PSC ID and notifications URI from a links object deserialized from the Kafka message payload.
      * Expects the links object to be a Map containing a nested map under either "persons_with_significant_control" or
      * "persons-with-significant-control", which then has a "notifications" URL where the PSC ID is extracted from
      *
      * @param linksObject the links object from the deserialized PscNotificationSummary
-     * @return the extracted PSC ID, or null if not present or not in expected format
+     * @return a NotificationsLinkInfo object containingthe extracted PSC ID and notifications UNI, or null if not
+     * present or not in expected format
      */
     private NotificationsLinkInfo extractFromLinksObject(Object linksObject) {
         if (!(linksObject instanceof Map)) {
