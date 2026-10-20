@@ -20,8 +20,9 @@ import uk.gov.companieshouse.common.client.PrimarySearchApiClient;
 import uk.gov.companieshouse.common.exception.NonRetryableException;
 import uk.gov.companieshouse.common.exception.PscDeserialisationException;
 import uk.gov.companieshouse.resourcechanged.serdes.PscDeserialiser;
+import uk.gov.companieshouse.resourcechanged.util.NotificationsLinkInfo;
 import uk.gov.companieshouse.stream.ResourceChangedData;
-import uk.gov.companieshouse.resourcechanged.util.PscIdExtractor;
+import uk.gov.companieshouse.resourcechanged.util.PscLinkInfoExtractor;
 
 import java.util.Optional;
 
@@ -41,7 +42,7 @@ class PscSearchUpsertServiceTest {
     @Mock
     private ResourceChangedData resourceChangedData;
     @Mock
-    private PscIdExtractor pscIdExtractor;
+    private PscLinkInfoExtractor pscLinkInfoExtractor;
     @Mock
     private NotificationsApiClient notificationsApiClient;
     @InjectMocks
@@ -49,10 +50,11 @@ class PscSearchUpsertServiceTest {
 
     @Test
     void shouldProcessMessage() {
+        NotificationsLinkInfo notificationsLinkInfo = new NotificationsLinkInfo(DESTINATION_PSC_ID, PSC_NOTIFICATIONS_URI.formatted(DESTINATION_PSC_ID));
         when(resourceChangedData.getData()).thenReturn("{\"some\":\"json\"}");
         when(resourceChangedData.getResourceId()).thenReturn(DESTINATION_PSC_ID);
         when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
-        when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(DESTINATION_PSC_ID));
+        when(pscLinkInfoExtractor.extractNotificationsLinkInfo(pscNotificationSummary)).thenReturn(Optional.of(notificationsLinkInfo));
         NotificationList notificationList = mock(NotificationList.class);
         when(notificationsApiClient.getPscNotificationListForUpsert(PSC_NOTIFICATIONS_URI.formatted(DESTINATION_PSC_ID)))
             .thenReturn(Optional.of(notificationList));
@@ -87,12 +89,14 @@ class PscSearchUpsertServiceTest {
 
     private void processChangedAppointment(String appointmentId, String destinationPscId, String previousPscId,
                                            NotificationList destinationNotifications) {
+        NotificationsLinkInfo notificationsLinkInfo = new NotificationsLinkInfo(destinationPscId, PSC_NOTIFICATIONS_URI.formatted(destinationPscId));
+
         String data = "{\"appointment_id\":\"%s\",\"psc_id\":\"%s\",\"previous_psc_id\":\"%s\"}"
                 .formatted(appointmentId, destinationPscId, previousPscId);
         when(resourceChangedData.getData()).thenReturn(data);
         when(resourceChangedData.getResourceId()).thenReturn(appointmentId);
         when(deserialiser.deserialisePscNotificationSummary(data)).thenReturn(pscNotificationSummary);
-        when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(destinationPscId));
+        when(pscLinkInfoExtractor.extractNotificationsLinkInfo(pscNotificationSummary)).thenReturn(Optional.of(notificationsLinkInfo));
         when(notificationsApiClient.getPscNotificationListForUpsert(PSC_NOTIFICATIONS_URI.formatted(destinationPscId)))
                 .thenReturn(Optional.of(destinationNotifications));
 
@@ -116,7 +120,7 @@ class PscSearchUpsertServiceTest {
         when(resourceChangedData.getData()).thenReturn("appointment-data");
         when(resourceChangedData.getResourceId()).thenReturn(APPOINTMENT_2);
         when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
-        when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.empty());
+        when(pscLinkInfoExtractor.extractNotificationsLinkInfo(pscNotificationSummary)).thenReturn(Optional.empty());
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
 
         assertThrows(NonRetryableException.class, () -> upsertService.processMessage(params));
@@ -125,10 +129,11 @@ class PscSearchUpsertServiceTest {
 
     @Test
     void shouldThrowNonRetryableExceptionWhenNotificationsUnavailable() {
+        NotificationsLinkInfo notificationsLinkInfo = new NotificationsLinkInfo(DESTINATION_PSC_ID, PSC_NOTIFICATIONS_URI.formatted(DESTINATION_PSC_ID));
         when(resourceChangedData.getData()).thenReturn("appointment-data");
         when(resourceChangedData.getResourceId()).thenReturn(APPOINTMENT_2);
         when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
-    when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.of(DESTINATION_PSC_ID));
+    when(pscLinkInfoExtractor.extractNotificationsLinkInfo(pscNotificationSummary)).thenReturn(Optional.of(notificationsLinkInfo));
     when(notificationsApiClient.getPscNotificationListForUpsert(PSC_NOTIFICATIONS_URI.formatted(DESTINATION_PSC_ID))).thenReturn(Optional.empty());
         ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(resourceChangedData);
 

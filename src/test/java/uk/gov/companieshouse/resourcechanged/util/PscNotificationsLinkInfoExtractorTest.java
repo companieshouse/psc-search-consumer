@@ -15,9 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class PscIdExtractorTest {
+class PscNotificationsLinkInfoExtractorTest {
 
-    private final PscIdExtractor extractor = new PscIdExtractor();
+    private final PscLinkInfoExtractor extractor = new PscLinkInfoExtractor();
 
     private static final String PSC_ID = "UoS9J5Xq_wJn5y07NoZR_gaXqYA";
     private static final String NOTIFICATIONS_URL = "/persons-with-significant-control/" + PSC_ID + "/notifications";
@@ -26,7 +26,7 @@ class PscIdExtractorTest {
     private PscNotificationSummary listSummary;
 
     @Test
-    void shouldExtractPscIdFromNotificationsUrl() {
+    void shouldExtractPscIdAndNotificationsLinkFromLinksMap() {
         Map<String, Object> pscLinksMap = new HashMap<>();
         pscLinksMap.put("notifications", NOTIFICATIONS_URL);
 
@@ -34,13 +34,14 @@ class PscIdExtractorTest {
         linksMap.put("persons_with_significant_control", pscLinksMap);
 
         when(listSummary.getLinks()).thenReturn(linksMap);
-        Optional<String> result = extractor.extractPscId(listSummary);
+        Optional<NotificationsLinkInfo> result = extractor.extractNotificationsLinkInfo(listSummary);
         assertTrue(result.isPresent());
-        assertEquals(PSC_ID, result.get());
+        assertEquals(PSC_ID, result.get().pscId());
+        assertEquals(NOTIFICATIONS_URL, result.get().notificationsLink());
     }
 
     @Test
-    void shouldExtractPscIdFromNotificationsUrlWithHyphenatedLinksKey() {
+    void shouldExtractPscIdAndNotificationsLinkFromLinksMapWithHyphenatedLinksKey() {
         Map<String, Object> pscLinksMap = new HashMap<>();
         pscLinksMap.put("notifications", NOTIFICATIONS_URL);
 
@@ -48,21 +49,22 @@ class PscIdExtractorTest {
         linksMap.put("persons-with-significant-control", pscLinksMap);
 
         when(listSummary.getLinks()).thenReturn(linksMap);
-        Optional<String> result = extractor.extractPscId(listSummary);
+        Optional<NotificationsLinkInfo> result = extractor.extractNotificationsLinkInfo(listSummary);
         assertTrue(result.isPresent());
-        assertEquals(PSC_ID, result.get());
+        assertEquals(PSC_ID, result.get().pscId());
+        assertEquals(NOTIFICATIONS_URL, result.get().notificationsLink());
     }
 
     @Test
     void shouldReturnEmptyWhenListSummaryIsNull() {
-        Optional<String> result = extractor.extractPscId(null);
+        Optional<NotificationsLinkInfo> result = extractor.extractNotificationsLinkInfo(null);
         assertTrue(result.isEmpty());
     }
 
     @Test
     void shouldReturnEmptyWhenLinksAreNull() {
         when(listSummary.getLinks()).thenReturn(null);
-        Optional<String> result = extractor.extractPscId(listSummary);
+        Optional<NotificationsLinkInfo> result = extractor.extractNotificationsLinkInfo(listSummary);
         assertTrue(result.isEmpty());
     }
 
@@ -70,14 +72,14 @@ class PscIdExtractorTest {
     void shouldReturnEmptyWhenPscLinksMapIsEmpty() {
         Map<String, Object> linksMap = new HashMap<>();
         when(listSummary.getLinks()).thenReturn(linksMap);
-        Optional<String> result = extractor.extractPscId(listSummary);
+        Optional<NotificationsLinkInfo> result = extractor.extractNotificationsLinkInfo(listSummary);
         assertTrue(result.isEmpty());
     }
 
     @Test
     void shouldReturnEmptyWhenExceptionOccursDuringExtraction() {
         when(listSummary.getLinks()).thenThrow(new RuntimeException("Unexpected error"));
-        Optional<String> result = extractor.extractPscId(listSummary);
+        Optional<NotificationsLinkInfo> result = extractor.extractNotificationsLinkInfo(listSummary);
         assertTrue(result.isEmpty());
     }
 }
