@@ -39,12 +39,11 @@ class PscSearchDeleteServiceTest {
 		// given
 		PscSearchDeleteService service = new PscSearchDeleteService(apiClient, pscIdExtractor, deserialiser, notificationsApiClient);
 		String pscId = "pscid-123";
-		String resourceUri = "/persons-with-significant-control/abc/notifications";
+		String resourceUri = "/persons-with-significant-control/pscid-123/notifications";
 
 		ResourceChangedData data = mock(ResourceChangedData.class);
 		PscNotificationSummary pscNotificationSummary = mock(PscNotificationSummary.class);
 
-		when(data.getResourceUri()).thenReturn(resourceUri);
 		when(data.getData()).thenReturn("some-payload");
 		when(notificationsApiClient.getNotification(resourceUri)).thenReturn(Optional.empty());
 		when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
@@ -66,13 +65,17 @@ class PscSearchDeleteServiceTest {
 	void shouldThrowRetryableExceptionWhenNotificationIsPresent() {
 		// given
 		PscSearchDeleteService service = new PscSearchDeleteService(apiClient, pscIdExtractor, deserialiser, notificationsApiClient);
-		String resourceUri = "/persons-with-significant-control/abc/notifications";
+		String pscId = "pscid-123";
+		String resourceUri = "/persons-with-significant-control/pscid-123/notifications";
 
 		ResourceChangedData data = mock(ResourceChangedData.class);
 		PscNotificationSummary notificationSummary = mock(PscNotificationSummary.class);
 
-		when(data.getResourceUri()).thenReturn(resourceUri);
+		when(data.getData()).thenReturn("some-payload");
+		when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(notificationSummary);
 		when(notificationsApiClient.getNotification(resourceUri)).thenReturn(Optional.of(notificationSummary));
+
+		when(pscIdExtractor.extractPscId(notificationSummary)).thenReturn(Optional.of(pscId));
 
 		ResourceChangedServiceParameters params = new ResourceChangedServiceParameters(data);
 
@@ -85,14 +88,11 @@ class PscSearchDeleteServiceTest {
 	void shouldThrowNonRetryableExceptionWhenPscIdCannotBeExtracted() {
 		// given
 		PscSearchDeleteService service = new PscSearchDeleteService(apiClient, pscIdExtractor, deserialiser, notificationsApiClient);
-		String resourceUri = "/persons-with-significant-control/abc/notifications";
 
 		ResourceChangedData data = mock(ResourceChangedData.class);
 		PscNotificationSummary pscNotificationSummary = mock(PscNotificationSummary.class);
 
 		when(data.getData()).thenReturn("some-payload");
-		when(data.getResourceUri()).thenReturn(resourceUri);
-		when(notificationsApiClient.getNotification(resourceUri)).thenReturn(Optional.empty());
 		when(deserialiser.deserialisePscNotificationSummary(anyString())).thenReturn(pscNotificationSummary);
 
 		when(pscIdExtractor.extractPscId(pscNotificationSummary)).thenReturn(Optional.empty());

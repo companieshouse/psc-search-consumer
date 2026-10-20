@@ -37,11 +37,6 @@ public class PscSearchDeleteService implements ResourceChangedService {
 
         ResourceChangedData payload = parameters.getData();
 
-        notificationsApiClient.getNotification(payload.getResourceUri())
-                .ifPresent(pscNotificationSummary -> {
-                    throw new RetryableException("PSC has not yet been deleted");
-                });
-
         PscNotificationSummary pscNotificationSummary = deserialiser.deserialisePscNotificationSummary(payload.getData());
         String pscId = pscIdExtractor.extractPscId(pscNotificationSummary)
                 .orElseThrow(() -> {
@@ -51,7 +46,13 @@ public class PscSearchDeleteService implements ResourceChangedService {
                 });
         DataMapHolder.get().pscId(pscId);
 
-        notificationsApiClient.getPscNotificationListForDelete(payload.getResourceUri())
+        String notificationUri = String.format("/persons-with-significant-control/%s/notifications", pscId);
+
+        notificationsApiClient.getNotification(notificationUri)
+                .ifPresent(notification -> {
+                    throw new RetryableException("PSC has not yet been deleted");
+                });
+        notificationsApiClient.getPscNotificationListForDelete(notificationUri)
                 .ifPresentOrElse(notificationList -> apiClientService.upsertPsc(pscId, notificationList),
                         () -> apiClientService.deletePsc(pscId));
     }
