@@ -8,7 +8,8 @@ import uk.gov.companieshouse.common.client.NotificationsApiClient;
 import uk.gov.companieshouse.common.exception.NonRetryableException;
 import uk.gov.companieshouse.common.logging.DataMapHolder;
 import uk.gov.companieshouse.resourcechanged.serdes.PscDeserialiser;
-import uk.gov.companieshouse.resourcechanged.util.PscIdExtractor;
+import uk.gov.companieshouse.resourcechanged.util.NotificationsLinkInfo;
+import uk.gov.companieshouse.resourcechanged.util.PscLinkInfoExtractor;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 import uk.gov.companieshouse.common.client.PrimarySearchApiClient;
 
@@ -16,17 +17,16 @@ import uk.gov.companieshouse.common.client.PrimarySearchApiClient;
 public class PscSearchUpsertService implements ResourceChangedService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PscSearchUpsertService.class);
-    private static final String PSC_NOTIFICATIONS_URI = "/persons-with-significant-control/%s/notifications";
     private final PscDeserialiser deserialiser;
     private final PrimarySearchApiClient primarySearchApiClient;
-    private final PscIdExtractor pscIdExtractor;
+    private final PscLinkInfoExtractor pscLinkInfoExtractor;
     private final NotificationsApiClient notificationsApiClient;
 
     public PscSearchUpsertService(PscDeserialiser deserialiser, PrimarySearchApiClient primarySearchApiClient,
-                                  PscIdExtractor pscIdExtractor, NotificationsApiClient notificationsApiClient) {
+                                  PscLinkInfoExtractor pscLinkInfoExtractor, NotificationsApiClient notificationsApiClient) {
         this.deserialiser = deserialiser;
         this.primarySearchApiClient = primarySearchApiClient;
-        this.pscIdExtractor = pscIdExtractor;
+        this.pscLinkInfoExtractor = pscLinkInfoExtractor;
         this.notificationsApiClient = notificationsApiClient;
     }
 
@@ -36,16 +36,16 @@ public class PscSearchUpsertService implements ResourceChangedService {
         ResourceChangedData payload = parameters.getData();
         PscNotificationSummary pscNotificationSummary = deserialiser.deserialisePscNotificationSummary(payload.getData());
         String resourceId = payload.getResourceId();
-        String pscId = pscIdExtractor.extractPscId(pscNotificationSummary)
+        NotificationsLinkInfo notificationsLinkInfo = pscLinkInfoExtractor.extractNotificationsLinkInfo(pscNotificationSummary)
                 .orElseThrow(() -> {
                     LOGGER.error("Could not extract PSC ID from notifications link, resourceId: {}", resourceId);
                     return new NonRetryableException(
                             "Could not extract PSC ID from notifications link for resourceId: " + resourceId);
                 });
 
-        DataMapHolder.get().pscId(pscId);
-        notificationsApiClient.getPscNotificationListForUpsert(PSC_NOTIFICATIONS_URI.formatted(pscId))
-                .ifPresentOrElse(notificationList -> primarySearchApiClient.upsertPsc(pscId, notificationList),
+        DataMapHolder.get().pscId(notificationsLinkInfo.pscId());
+        notificationsApiClient.getPscNotificationListForUpsert(notificationsLinkInfo.notificationsLink())
+                .ifPresentOrElse(notificationList -> primarySearchApiClient.upsertPsc(notificationsLinkInfo.pscId(), notificationList),
                         () -> {
                             LOGGER.error("PSC notifications unavailable. {}", DataMapHolder.getLogMap());
                             throw new NonRetryableException("PSC notifications unavailable");
