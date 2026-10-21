@@ -11,15 +11,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Extracts the PSC ID from the embedded links in a PscNotificationSummary object.
+ * Extracts the PSC ID and 'notifications' URI from the embedded links in a PscNotificationSummary object.
  * 
  * The PSC ID is found in the notifications URL path:
  * /persons-with-significant-control/{pscId}/notifications
  */
 @Component
-public class PscIdExtractor {
+public class PscLinkInfoExtractor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PscIdExtractor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PscLinkInfoExtractor.class);
     
     private static final Pattern PSC_ID_PATTERN = 
         Pattern.compile("(?<=persons-with-significant-control/)([^/]+)(?=/notifications)");
@@ -27,12 +27,13 @@ public class PscIdExtractor {
     private static final String PSC_LINKS_KEY_HYPHEN = "persons-with-significant-control";
 
     /**
-     * Extracts the PSC ID from the PscNotificationSummary object's links.
+     * Extracts the PSC ID and notification URI from the PscNotificationSummary object's links.
      *
      * @param pscNotificationSummary the PscNotificationSummary containing the links with embedded PSC ID
-     * @return an Optional containing the extracted PSC ID, or empty if extraction failed
+     * @return an Optional containing a NotificationLinksInfo object with the extracted PSC ID and notifications URI,
+     * or empty if extraction failed
      */
-    public Optional<String> extractPscId(PscNotificationSummary pscNotificationSummary) {
+    public Optional<NotificationsLinkInfo> extractNotificationsLinkInfo(PscNotificationSummary pscNotificationSummary) {
         if (pscNotificationSummary == null) {
             LOGGER.warn("PscNotificationSummary is null, cannot extract PSC ID");
             return Optional.empty();
@@ -40,10 +41,10 @@ public class PscIdExtractor {
 
         try {
             Object links = pscNotificationSummary.getLinks();
-            String pscId = extractFromLinksObject(links);
-            if (pscId != null && !pscId.isEmpty()) {
-                LOGGER.debug("Extracted PSC ID from PscNotificationSummary links: {}", pscId);
-                return Optional.of(pscId);
+            NotificationsLinkInfo notificationsLinkInfo = extractFromLinksObject(links);
+            if (notificationsLinkInfo != null) {
+                LOGGER.debug("Extracted PSC ID from PscNotificationSummary links: {}", notificationsLinkInfo);
+                return Optional.of(notificationsLinkInfo);
             }
         } catch (Exception e) {
             LOGGER.warn("Error extracting PSC ID from PscNotificationSummary links", e);
@@ -54,14 +55,15 @@ public class PscIdExtractor {
     }
 
     /**
-     * Extracts the PSC ID from a links object deserialized from the Kafka message payload.
+     * Extracts the PSC ID and notifications URI from a links object deserialized from the Kafka message payload.
      * Expects the links object to be a Map containing a nested map under either "persons_with_significant_control" or
      * "persons-with-significant-control", which then has a "notifications" URL where the PSC ID is extracted from
      *
      * @param linksObject the links object from the deserialized PscNotificationSummary
-     * @return the extracted PSC ID, or null if not present or not in expected format
+     * @return a NotificationsLinkInfo object containingthe extracted PSC ID and notifications UNI, or null if not
+     * present or not in expected format
      */
-    private String extractFromLinksObject(Object linksObject) {
+    private NotificationsLinkInfo extractFromLinksObject(Object linksObject) {
         if (!(linksObject instanceof Map)) {
             return null;
         }
@@ -73,7 +75,7 @@ public class PscIdExtractor {
         if (pscObj instanceof Map) {
             Object notifUrl = ((Map<?, ?>) pscObj).get("notifications");
             if (notifUrl != null) {
-                return extractIdFromUrl(notifUrl.toString());
+                return new NotificationsLinkInfo(extractIdFromUrl(notifUrl.toString()), notifUrl.toString());
             }
         }
         return null;

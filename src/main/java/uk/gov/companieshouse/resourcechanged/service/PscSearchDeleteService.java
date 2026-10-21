@@ -10,7 +10,8 @@ import uk.gov.companieshouse.common.logging.DataMapHolder;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 import uk.gov.companieshouse.resourcechanged.serdes.PscDeserialiser;
-import uk.gov.companieshouse.resourcechanged.util.PscIdExtractor;
+import uk.gov.companieshouse.resourcechanged.util.NotificationsLinkInfo;
+import uk.gov.companieshouse.resourcechanged.util.PscLinkInfoExtractor;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
 import static uk.gov.companieshouse.Application.NAMESPACE;
@@ -20,14 +21,14 @@ public class PscSearchDeleteService implements ResourceChangedService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NAMESPACE);
     private final PrimarySearchApiClient apiClientService;
-    private final PscIdExtractor pscIdExtractor;
+    private final PscLinkInfoExtractor pscLinkInfoExtractor;
     private final PscDeserialiser deserialiser;
     private final NotificationsApiClient notificationsApiClient;
 
-    public PscSearchDeleteService(PrimarySearchApiClient apiClientService, PscIdExtractor pscIdExtractor,
+    public PscSearchDeleteService(PrimarySearchApiClient apiClientService, PscLinkInfoExtractor pscLinkInfoExtractor,
                                   PscDeserialiser deserialiser, NotificationsApiClient notificationsApiClient) {
         this.apiClientService = apiClientService;
-        this.pscIdExtractor = pscIdExtractor;
+        this.pscLinkInfoExtractor = pscLinkInfoExtractor;
         this.deserialiser = deserialiser;
         this.notificationsApiClient = notificationsApiClient;
     }
@@ -38,22 +39,20 @@ public class PscSearchDeleteService implements ResourceChangedService {
         ResourceChangedData payload = parameters.getData();
 
         PscNotificationSummary pscNotificationSummary = deserialiser.deserialisePscNotificationSummary(payload.getData());
-        String pscId = pscIdExtractor.extractPscId(pscNotificationSummary)
+        NotificationsLinkInfo notificationsLinkInfo = pscLinkInfoExtractor.extractNotificationsLinkInfo(pscNotificationSummary)
                 .orElseThrow(() -> {
                     LOGGER.error("Could not extract PSC ID from notifications link for delete request, resourceId: " + payload.getResourceId());
                     return new NonRetryableException(
                             "Could not extract PSC ID from notifications link for delete request, resourceId: " + payload.getResourceId());
                 });
-        DataMapHolder.get().pscId(pscId);
+        DataMapHolder.get().pscId(notificationsLinkInfo.pscId());
 
-        String notificationUri = String.format("/persons-with-significant-control/%s/notifications", pscId);
-
-        notificationsApiClient.getNotification(notificationUri)
+        notificationsApiClient.getNotification(notificationsLinkInfo.notificationsLink())
                 .ifPresent(notification -> {
                     throw new RetryableException("PSC has not yet been deleted");
                 });
-        notificationsApiClient.getPscNotificationListForDelete(notificationUri)
-                .ifPresentOrElse(notificationList -> apiClientService.upsertPsc(pscId, notificationList),
-                        () -> apiClientService.deletePsc(pscId));
+        notificationsApiClient.getPscNotificationListForDelete(notificationsLinkInfo.notificationsLink())
+                .ifPresentOrElse(notificationList -> apiClientService.upsertPsc(notificationsLinkInfo.pscId(), notificationList),
+                        () -> apiClientService.deletePsc(notificationsLinkInfo.pscId()));
     }
 }
