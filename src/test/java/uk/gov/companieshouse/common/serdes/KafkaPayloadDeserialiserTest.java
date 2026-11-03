@@ -7,7 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.companieshouse.common.TestUtils.writePayloadToBytes;
 
 import org.apache.avro.AvroRuntimeException;
+import org.apache.avro.util.ClassSecurityValidator;
 import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import uk.gov.companieshouse.common.exception.InvalidPayloadException;
@@ -24,6 +26,14 @@ class KafkaPayloadDeserialiserTest {
     private static final String PSC_ID = "psc_id";
     private static final String PREVIOUS_PSC_ID = "previous_officer_id";
     private static final String CONTEXT_ID = "context_id";
+
+    @BeforeAll
+    static void setupAvroSecurity() {
+        // Avro 1.12+ requires explicit class trust for serialization.
+        // This accepts all classes. Long term, we could consider using the schema registry to avoid
+        // runtime class validation entirely. However, that would make integration testing more complex.
+        ClassSecurityValidator.setGlobal((clazz -> true));
+    }
 
     @Test
     void testDeserialiseResourceChangedData() {
