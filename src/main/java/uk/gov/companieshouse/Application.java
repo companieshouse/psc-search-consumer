@@ -8,10 +8,6 @@ public class Application {
 
     public static final String NAMESPACE = "psc-search-consumer";
 
-    static {
-        System.setProperty("org.apache.avro.SERIALIZABLE_PACKAGES", "*");
-    }
-
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
