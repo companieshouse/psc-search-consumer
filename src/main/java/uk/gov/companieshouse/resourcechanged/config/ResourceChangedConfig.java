@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.resourcechanged.config;
 
 import consumer.deserialization.AvroDeserializer;
+import org.apache.avro.util.ClassSecurityValidator;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -43,6 +44,14 @@ import java.util.function.Supplier;
 public class ResourceChangedConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.NAMESPACE);
+
+    static {
+        configureAvroClassSecurity();
+    }
+
+    public static void configureAvroClassSecurity() {
+        ClassSecurityValidator.setGlobal(clazz -> true);
+    }
 
     @Value("${psc.consumer.enabled:false}")
     private boolean pscConsumerEnabled;
