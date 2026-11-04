@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.resourcechanged.config;
 
-import consumer.deserialization.AvroDeserializer;
 import org.apache.avro.util.ClassSecurityValidator;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
