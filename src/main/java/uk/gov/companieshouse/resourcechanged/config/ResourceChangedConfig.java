@@ -23,6 +23,7 @@ import uk.gov.companieshouse.Application;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.common.client.ApiClientService;
 import uk.gov.companieshouse.common.exception.NonRetryableException;
+import uk.gov.companieshouse.common.serdes.KafkaPayloadDeserialiser;
 import uk.gov.companieshouse.kafka.exceptions.SerializationException;
 import uk.gov.companieshouse.kafka.serialization.AvroSerializer;
 import uk.gov.companieshouse.kafka.serialization.SerializerFactory;
@@ -72,10 +73,11 @@ public class ResourceChangedConfig {
                         ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class,
                         ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class,
                         ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class,
-                        ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, StringDeserializer.class,
+                        ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, KafkaPayloadDeserialiser.class,
                         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
                         ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false"),
-                new StringDeserializer(), new AvroDeserializer<>(ResourceChangedData.class));
+                new StringDeserializer(),
+                new ErrorHandlingDeserializer<>(new KafkaPayloadDeserialiser<>(ResourceChangedData.class)));
     }
 
     @Bean
