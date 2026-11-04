@@ -2,6 +2,7 @@ package uk.gov.companieshouse.pscmerge.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.avro.util.ClassSecurityValidator;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -34,6 +35,14 @@ import java.util.Map;
 @Configuration
 @EnableKafka
 public class PscMergeKafkaConfig {
+
+    static {
+        configureAvroClassSecurity();
+    }
+
+    public static void configureAvroClassSecurity() {
+        ClassSecurityValidator.setGlobal(clazz -> true);
+    }
 
     @Bean
     public ConsumerFactory<String, PscMerge> pscMergeConsumerFactory(
