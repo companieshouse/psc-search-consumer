@@ -46,7 +46,9 @@ public class PscMergeKafkaConfig {
 
     @Bean
     public ConsumerFactory<String, PscMerge> pscMergeConsumerFactory(
-            @Value("${KAFKA3_BROKER_ADDR:localhost:9092}") String bootstrapServers) {
+            @Value("${KAFKA3_BROKER_ADDR:localhost:9092}") String bootstrapServers,
+            @Value("${PSC_MERGE_MAX_POLL_INTERVAL_MS:300000}") int maxPollIntervalMs,
+            @Value("${PSC_MERGE_MAX_POLL_RECORDS:500}") int maxPollRecords) {
         return new DefaultKafkaConsumerFactory<>(
                 Map.of(
                         ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
@@ -55,7 +57,9 @@ public class PscMergeKafkaConfig {
                         ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class,
                         ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, KafkaPayloadDeserialiser.class,
                         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
-                        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false"),
+                        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false",
+                        ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxPollIntervalMs,
+                        ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords),
                 new StringDeserializer(),
                 new ErrorHandlingDeserializer<>(new KafkaPayloadDeserialiser<>(PscMerge.class)));
     }

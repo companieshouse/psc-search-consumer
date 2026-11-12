@@ -30,6 +30,14 @@ In order to build ```psc-search-consumer``` locally you will need the following:
 | ------                              | -------------                                                                                        | ----------- | ---------                 |
 | ```BACKOFF_DELAY```                 | The delay in milliseconds between message republish attempts.                                        | √           | 1000                      |
 | ------                              | -------------                                                                                        | ----------- | ---------                 |
+| ```MAX_POLL_INTERVAL_MS``` | Max time in ms between polls for the resource changed consumer (`max.poll.interval.ms`) | √ | 300000 |
+| ------ | ------------- | ----------- | --------- |
+| ```MAX_POLL_RECORDS``` | Max records returned per poll for the resource changed consumer (`max.poll.records`) | √ | 500 |
+| ------ | ------------- | ----------- | --------- |
+| ```PSC_MERGE_MAX_POLL_INTERVAL_MS``` | Max time in ms between polls for the psc-merge consumer (`max.poll.interval.ms`) | √ | 300000 |
+| ------ | ------------- | ----------- | --------- |
+| ```PSC_MERGE_MAX_POLL_RECORDS``` | Max records returned per poll for the psc-merge consumer (`max.poll.records`) | √ | 500 |
+| ------ | ------------- | ----------- | --------- |
 | ```INVALID_MESSAGE_TOPIC```         | The invalid message topic id for psc-search-consumer                                                 | √           | invalid-messages          |
 | ------                              | -------------                                                                                        | ----------- | ---------                     |
 | ```FEATURE_FLAG_PSC_CONSUMER_ENABLED``` | Feature flag to enable psc-search-consumer to consume messages                                   | √           | false                         |
